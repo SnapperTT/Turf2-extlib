@@ -1,7 +1,7 @@
 # Dependancy Builder for Turf 2
-[Turf 2](https://store.steampowered.com/app/1067420/Turf2/) ([turf2.net](https:://www.turf2.net)) is the at time of writing unreleased sequal to [Voxel Turf](https://store.steampowered.com/app/404530/Voxel_Turf/) ([voxelturf.net](https:://www.voxelturf.net))
+[Turf 2](https://store.steampowered.com/app/1067420/Turf2/) ([turf2.net](https://www.turf2.net)) is the at time of writing unreleased sequal to [Voxel Turf](https://store.steampowered.com/app/404530/Voxel_Turf/) ([voxelturf.net](https://www.voxelturf.net))
 
-This is *not* the source code for the game, but it is a utility for compling and porting it. It downloads and compiles all the libraries that Turf 2 depends on and compiles a small dummy program. If this dummy program runs on a target architecture *then* it is most likely that Turf 2 will run on it.
+This is *not* the source code for the game, but it is a utility for compling and porting it. It downloads and compiles all the libraries that Turf 2 depends on and compiles a small dummy program. If `t2_windowing` runs on a target architecture *then* it is most likely that Turf 2 will run on it.
 
 
 ## Building
