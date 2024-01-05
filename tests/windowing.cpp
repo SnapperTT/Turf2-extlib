@@ -31,7 +31,7 @@ int main(int argv, char** args) {
 	
 	const uint32_t m_resetFlags = BGFX_RESET_MAXANISOTROPY;//BGFX_RESET_VSYNC |  | BGFX_RESET_FLIP_AFTER_RENDER ;// BGFX_RESET_MSAA_X4;  | 
 	bgfx::Init init;
-		init.type     = bgfx::RendererType::OpenGL;//Count;
+		init.type     = bgfx::RendererType::Count;
 		init.deviceId = 0;
 		init.vendorId = BGFX_PCI_ID_NONE;
 		init.debug  = true;
