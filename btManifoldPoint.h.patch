@@ -1,0 +1,13 @@
+--- btManifoldPoint.h	2021-11-25 07:59:22.000000000 +1000
++++ btManifoldPoint_2.h	2021-12-29 15:32:16.906989667 +1000
+@@ -71,9 +71,9 @@ public:
+ 					const btVector3& normal,
+ 					btScalar distance) : m_localPointA(pointA),
+ 										 m_localPointB(pointB),
+-										 m_normalWorldOnB(normal),
+                      m_positionWorldOnB(0,0,0),
+                      m_positionWorldOnA(0,0,0),
++										 m_normalWorldOnB(normal),
+ 										 m_distance1(distance),
+ 										 m_combinedFriction(btScalar(0.)),
+ 										 m_combinedRollingFriction(btScalar(0.)),

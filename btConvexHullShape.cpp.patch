@@ -1,0 +1,10 @@
+--- btConvexHullShape_orig.cpp	2022-04-04 15:15:14.135943908 +1000
++++ btConvexHullShape.cpp	2022-04-04 15:14:05.605649911 +1000
+@@ -39,6 +39,7 @@ btConvexHullShape ::btConvexHullShape(co
+ 		pointsAddress += stride;
+ 	}
+ 
++	unshrunkenShape = NULL;
+ 	recalcLocalAabb();
+ }
+ 

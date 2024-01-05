@@ -1,0 +1,71 @@
+--- btCollisionWorld.cpp	2022-03-30 14:03:06.000000000 +1000
++++ btCollisionWorld_mod.cpp	2022-04-09 12:40:57.454022083 +1000
+@@ -64,6 +64,12 @@ subject to the following restrictions:
+ #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+ #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+ 
++
++// To allow ray/convex casting customisation with custom collision shapes
++ObjectQuerySingleCallback gObjectQuerySingleCallback = 0;
++RayTestSingleCallback gRayTestSingleCallback = 0;
++DrawCustomShapeCallback gDrawCustomShapeCallback = 0;
++
+ btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
+ 	: m_dispatcher1(dispatcher),
+ 	  m_broadphasePairCache(pairCache),
+@@ -286,7 +292,13 @@ void btCollisionWorld::rayTestSingle(con
+ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, const btTransform& rayToTrans,
+ 											 const btCollisionObjectWrapper* collisionObjectWrap,
+ 											 RayResultCallback& resultCallback)
+-{
++{	
++	// Abort if the callback disagress
++	if (gRayTestSingleCallback) {
++		if (!gRayTestSingleCallback (rayFromTrans, rayToTrans, collisionObjectWrap, resultCallback))
++			return;
++		}
++		
+ 	btSphereShape pointShape(btScalar(0.0));
+ 	pointShape.setMargin(0.f);
+ 	const btConvexShape* castShape = &pointShape;
+@@ -519,6 +531,8 @@ void btCollisionWorld::rayTestSingleInte
+ 						m_closestHitFraction = m_userCallback->m_closestHitFraction;
+ 						return result;
+ 					}
++					
++					RayResultCallback* getBaseCallback() { return m_userCallback->getBaseCallback(); }
+ 				};
+ 
+ 				struct RayTester : btDbvt::ICollide
+@@ -612,6 +626,12 @@ void btCollisionWorld::objectQuerySingle
+ 												 const btCollisionObjectWrapper* colObjWrap,
+ 												 ConvexResultCallback& resultCallback, btScalar allowedPenetration)
+ {
++	// Abort if the callback disagress
++	if (gObjectQuerySingleCallback) {
++		if (!gObjectQuerySingleCallback (castShape, convexFromTrans, convexToTrans, colObjWrap, resultCallback,  allowedPenetration))
++			return;
++		}
++
+ 	const btCollisionShape* collisionShape = colObjWrap->getCollisionShape();
+ 	const btTransform& colObjWorldTransform = colObjWrap->getWorldTransform();
+ 
+@@ -869,6 +889,7 @@ void btCollisionWorld::objectQuerySingle
+ 								m_closestHitFraction = m_userCallback->m_closestHitFraction;
+ 								return result;
+ 							}
++							ConvexResultCallback* getBaseCallback() { return m_userCallback; }
+ 						};
+ 
+ 						LocalInfoAdder my_cb(index, &m_resultCallback);
+@@ -1391,6 +1412,10 @@ void btCollisionWorld::debugDrawObject(c
+ 			}
+ 			default:
+ 			{
++				if (gDrawCustomShapeCallback)
++					if (gDrawCustomShapeCallback(this, getDebugDrawer(), shape, worldTransform, color))
++						break;
++				
+ 				/// for polyhedral shapes
+ 				if (shape->isPolyhedral())
+ 				{

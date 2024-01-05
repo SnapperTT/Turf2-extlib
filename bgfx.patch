@@ -1,0 +1,201 @@
+#diff -ruN src_old/bgfx_p.h src/bgfx_p.h
+--- src/bgfx_p.h	2022-05-19 15:26:30.537944184 +1000
++++ src/bgfx_p.h	2022-05-19 15:28:40.438186410 +1000
+@@ -2940,6 +2940,7 @@
+ 		virtual ~RendererContextI() = 0;
+ 		virtual RendererType::Enum getRendererType() const = 0;
+ 		virtual const char* getRendererName() const = 0;
++		virtual int getDeviceDescription(char* out, const int maxLen) const = 0;
+ 		virtual bool isDeviceRemoved() = 0;
+ 		virtual void flip() = 0;
+ 		virtual void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) = 0;
+#diff -u bgfx.cpp bgfx.cpp.new 
+--- src/bgfx.cpp	2022-05-19 16:11:34.252836704 +1000
++++ src/bgfx.cpp	2022-05-19 16:24:18.803990175 +1000
+@@ -3410,6 +3410,12 @@
+ 		return s_rendererCreator[_type].name;
+ 	}
+ 
++	int getDeviceDescription(char* out, const int maxLen) {
++		BX_ASSERT(s_ctx, "No bgfx context");
++		BX_ASSERT(s_ctx->m_renderCtx, "No rendering context");
++		return s_ctx->m_renderCtx->getDeviceDescription(out, maxLen);
++		}
++	
+ 	PlatformData::PlatformData()
+ 		: ndt(NULL)
+ 		, nwh(NULL)
+#diff -u include/bgfx/bgfx.h include/bgfx/bgfx.h.new 
+--- include/bgfx/bgfx.h	2022-05-19 16:11:20.142811111 +1000
++++ include/bgfx/bgfx.h	2022-05-19 16:24:27.793998477 +1000
+@@ -1958,6 +1958,9 @@
+ 	/// @attention C99's equivalent binding is `bgfx_get_renderer_name`.
+ 	///
+ 	const char* getRendererName(RendererType::Enum _type);
++	
++	/// Gets a human readable description of the active rendering device 
++	int getDeviceDescription(char* out, const int maxLen);
+ 
+ 	/// Initialize the bgfx library.
+ 	///
+#diff -ruN src_old/renderer_d3d11.cpp src/renderer_d3d11.cpp
+--- src/renderer_d3d11.cpp	2022-05-19 15:26:30.537944184 +1000
++++ src/renderer_d3d11.cpp	2022-05-19 15:33:51.588763935 +1000
+@@ -1714,6 +1714,24 @@
+ 		{
+ 			return BGFX_RENDERER_DIRECT3D11_NAME;
+ 		}
++		
++		int getDeviceDescription(char* out, const int maxLen) const override
++		{
++			const DXGI_ADAPTER_DESC& desc = m_dxgi.m_adapterDesc;
++			char description[BX_COUNTOF(desc.Description)];
++			wcstombs(description, desc.Description, BX_COUNTOF(desc.Description) );
++			
++			char dedicatedVideo[16];
++			bx::prettify(dedicatedVideo, BX_COUNTOF(dedicatedVideo), desc.DedicatedVideoMemory);
++			char dedicatedSystem[16];
++			bx::prettify(dedicatedSystem, BX_COUNTOF(dedicatedSystem), desc.DedicatedSystemMemory);
++			char sharedSystem[16];
++			bx::prettify(sharedSystem, BX_COUNTOF(sharedSystem), desc.SharedSystemMemory);
++			char processMemoryUsed[16];
++			bx::prettify(processMemoryUsed, BX_COUNTOF(processMemoryUsed), bx::getProcessMemoryUsed() );
++
++			return bx::snprintf(out, maxLen, "Device: %s\nDedicated Video Memory: %s\nDedicated System Memory: %s\nShared System Memory: %s\nUsed Memory: %s", description, dedicatedVideo, dedicatedSystem, sharedSystem, processMemoryUsed);
++		}
+ 
+ 		void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) override
+ 		{
+#diff -ruN src_old/renderer_d3d12.cpp src/renderer_d3d12.cpp
+--- src/renderer_d3d12.cpp	2022-05-19 15:26:30.537944184 +1000
++++ src/renderer_d3d12.cpp	2022-05-19 15:30:08.508350199 +1000
+@@ -1492,6 +1492,29 @@
+ 		{
+ 			return BGFX_RENDERER_DIRECT3D12_NAME;
+ 		}
++		
++		int getDeviceDescription(char* out, const int maxLen) const override
++		{
++			#if BX_PLATFORM_LINUX
++					const DXGI_ADAPTER_DESC desc = {};
++			#else
++					const DXGI_ADAPTER_DESC& desc = m_dxgi.m_adapterDesc;
++			#endif // BX_PLATFORM_LINUX
++			char description[BX_COUNTOF(desc.Description)];
++			wcstombs(description, desc.Description, BX_COUNTOF(desc.Description) );
++			
++			char dedicatedVideo[16];
++			bx::prettify(dedicatedVideo, BX_COUNTOF(dedicatedVideo), desc.DedicatedVideoMemory);
++			char dedicatedSystem[16];
++			bx::prettify(dedicatedSystem, BX_COUNTOF(dedicatedSystem), desc.DedicatedSystemMemory);
++			char sharedSystem[16];
++			bx::prettify(sharedSystem, BX_COUNTOF(sharedSystem), desc.SharedSystemMemory);
++			char processMemoryUsed[16];
++			bx::prettify(processMemoryUsed, BX_COUNTOF(processMemoryUsed), bx::getProcessMemoryUsed() );
++
++			return bx::snprintf(out, maxLen, "Device: %s\nDedicated Video Memory: %s\nDedicated System Memory: %s\nShared System Memory: %s\nUsed Memory: %s", description, dedicatedVideo, dedicatedSystem, sharedSystem, processMemoryUsed);
++		}
++
+ 
+ 		bool isDeviceRemoved() override
+ 		{
+#diff -ruN src_old/renderer_gl.cpp src/renderer_gl.cpp
+--- src/renderer_gl.cpp	2022-05-19 15:26:30.537944184 +1000
++++ src/renderer_gl.cpp	2022-05-19 15:29:49.788315411 +1000
+@@ -3167,6 +3167,16 @@
+ 		{
+ 			return BGFX_RENDERER_OPENGL_NAME;
+ 		}
++		
++		int getDeviceDescription(char* out, const int maxLen) const override
++		{
++			//const char* m_vendor      = getGLString(GL_VENDOR);
++			//const char* m_renderer    = getGLString(GL_RENDERER);
++			//const char* m_version     = getGLString(GL_VERSION);
++			//const char* m_glslVersion = getGLString(GL_SHADING_LANGUAGE_VERSION);
++			
++			return bx::snprintf(out, maxLen, "Vendor: %s\nRenderer: %s %s\nGLSL Version: %s", m_vendor, m_renderer, m_version, m_glslVersion);
++		}
+ 
+ 		bool isDeviceRemoved() override
+ 		{
+#diff -ruN src_old/renderer_noop.cpp src/renderer_noop.cpp
+--- src/renderer_noop.cpp	2022-05-19 15:26:30.537944184 +1000
++++ src/renderer_noop.cpp	2022-05-19 15:29:12.438245959 +1000
+@@ -83,6 +83,8 @@
+ 		{
+ 			return BGFX_RENDERER_NOOP_NAME;
+ 		}
++		
++		int getDeviceDescription(char* out, const int maxLen) const override { BX_UNUSED(out); BX_UNUSED(maxLen); return 0; }
+ 
+ 		bool isDeviceRemoved() override
+ 		{
+#diff -ruN src_old/renderer_vk.cpp src/renderer_vk.cpp
+--- src/renderer_vk.cpp	2022-05-19 15:26:30.537944184 +1000
++++ src/renderer_vk.cpp	2022-05-19 15:28:57.438218051 +1000
+@@ -2105,6 +2105,53 @@
+ 			return BGFX_RENDERER_VULKAN_NAME;
+ 		}
+ 
++		int getDeviceDescription(char* out, const int maxLen) const override
++		{
++			const VkPhysicalDeviceProperties& pdp = m_deviceProperties;
++			VkPhysicalDeviceMemoryBudgetPropertiesEXT dmbp;
++			dmbp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
++			dmbp.pNext = NULL;
++
++			int64_t gpuMemoryAvailable = -INT64_MAX;
++			int64_t gpuMemoryUsed      = -INT64_MAX;
++
++			if (s_extension[Extension::EXT_memory_budget].m_supported)
++			{
++				VkPhysicalDeviceMemoryProperties2 pdmp2;
++				pdmp2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
++				pdmp2.pNext = &dmbp;
++
++				vkGetPhysicalDeviceMemoryProperties2KHR(m_physicalDevice, &pdmp2);
++
++				gpuMemoryAvailable = 0;
++				gpuMemoryUsed      = 0;
++
++				for (uint32_t ii = 0; ii < m_memoryProperties.memoryHeapCount; ++ii)
++				{
++					if (!!(m_memoryProperties.memoryHeaps[ii].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) )
++					{
++						gpuMemoryAvailable += dmbp.heapBudget[ii];
++						gpuMemoryUsed += dmbp.heapUsage[ii];
++					}
++				}
++			}
++			int seek = bx::snprintf(out, maxLen, "Device: %s (%s)\n", pdp.deviceName, getName(pdp.deviceType));
++
++			for (uint32_t ii = 0; ii < m_memoryProperties.memoryHeapCount; ++ii)
++			{
++				char budget[16];
++				bx::prettify(budget, BX_COUNTOF(budget), dmbp.heapBudget[ii]);
++
++				//char usage[16];
++				//bx::prettify(usage, BX_COUNTOF(usage), dmbp.heapUsage[ii]);
++
++				const bool local = (!!(m_memoryProperties.memoryHeaps[ii].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) );
++
++				seek += bx::snprintf(&out[seek], maxLen - seek, "\nMemory %d %s - Budget: %12s", ii, local ? "(local)    " : "(non-local)", budget);//, usage);
++			}
++			return seek;
++		}
++		
+ 		bool isDeviceRemoved() override
+ 		{
+ 			return false;
+--- src/renderer_mtl.mm.old	2023-12-19 21:51:02.984431072 +0200
++++ src/renderer_mtl.mm	2023-12-19 21:51:55.478263134 +0200
+@@ -863,6 +863,8 @@
+ 		{
+ 			return BGFX_RENDERER_METAL_NAME;
+ 		}
++		
++		int getDeviceDescription(char* out, const int maxLen) const override { BX_UNUSED(out); BX_UNUSED(maxLen); return 0; }
+ 
+ 		void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) override
+ 		{

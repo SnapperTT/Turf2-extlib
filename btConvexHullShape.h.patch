@@ -1,0 +1,22 @@
+--- btConvexHullShape_orig.h	2022-04-04 15:15:04.775903753 +1000
++++ btConvexHullShape.h	2022-04-04 15:14:25.665735970 +1000
+@@ -28,12 +28,19 @@ btConvexHullShape : public btPolyhedralC
+ 	btAlignedObjectArray<btVector3> m_unscaledPoints;
+ 
+ public:
++	btConvexHullShape * unshrunkenShape;
++	//btAlignedObjectArray<btVector3> m_unshrunkenPoints; // points before margin shrinking
++
+ 	BT_DECLARE_ALIGNED_ALLOCATOR();
+ 
+ 	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive btScalar (x,y,z), the striding defines the number of bytes between each point, in memory.
+ 	///It is easier to not pass any points in the constructor, and just add one point at a time, using addPoint.
+ 	///btConvexHullShape make an internal copy of the points.
+ 	btConvexHullShape(const btScalar* points = 0, int numPoints = 0, int stride = sizeof(btVector3));
++	
++	~btConvexHullShape() {
++		if (unshrunkenShape) delete unshrunkenShape;
++		}
+ 
+ 	void addPoint(const btVector3& point, bool recalculateLocalAabb = true);
+ 

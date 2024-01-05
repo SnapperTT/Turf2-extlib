@@ -1,0 +1,19 @@
+--- btAlignedObjectArray_orig.h	2022-04-04 15:33:46.640716351 +1000
++++ btAlignedObjectArray.h	2022-04-04 15:34:16.470844307 +1000
+@@ -16,6 +16,9 @@ subject to the following restrictions:
+ #ifndef BT_OBJECT_ARRAY__
+ #define BT_OBJECT_ARRAY__
+ 
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wstringop-overflow="
++
+ #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
+ #include "btAlignedAllocator.h"
+ 
+@@ -501,4 +504,6 @@ public:
+ 	}
+ };
+ 
++#pragma GCC diagnostic pop
++
+ #endif  //BT_OBJECT_ARRAY__

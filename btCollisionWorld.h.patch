@@ -1,0 +1,55 @@
+--- btCollisionWorld.h	2022-03-30 14:03:06.000000000 +1000
++++ btCollisionWorld_mod.h	2022-04-09 12:41:03.024050437 +1000
+@@ -227,6 +227,7 @@ public:
+ 		}
+ 
+ 		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace) = 0;
++		virtual RayResultCallback* getBaseCallback() { return this; }
+ 	};
+ 
+ 	struct ClosestRayResultCallback : public RayResultCallback
+@@ -332,11 +333,13 @@ public:
+ 		btScalar m_closestHitFraction;
+ 		int m_collisionFilterGroup;
+ 		int m_collisionFilterMask;
++		unsigned int m_flags;
+ 
+ 		ConvexResultCallback()
+ 			: m_closestHitFraction(btScalar(1.)),
+ 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
+-			  m_collisionFilterMask(btBroadphaseProxy::AllFilter)
++			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
++			  m_flags(0)
+ 		{
+ 		}
+ 
+@@ -357,6 +360,7 @@ public:
+ 		}
+ 
+ 		virtual btScalar addSingleResult(LocalConvexResult& convexResult, bool normalInWorldSpace) = 0;
++		virtual ConvexResultCallback* getBaseCallback() { return this; }
+ 	};
+ 
+ 	struct ClosestConvexResultCallback : public ConvexResultCallback
+@@ -510,4 +514,21 @@ public:
+ 	virtual void serialize(btSerializer* serializer);
+ };
+ 
++// Call backs added
++typedef bool (*ObjectQuerySingleCallback) (const btConvexShape* castShape,const btTransform& convexFromTrans,const btTransform& convexToTrans,
++											const btCollisionObjectWrapper* colObjWrap,
++											btCollisionWorld::ConvexResultCallback& resultCallback, btScalar allowedPenetration);
++extern ObjectQuerySingleCallback		gObjectQuerySingleCallback;
++
++typedef bool (*RayTestSingleCallback) (const btTransform& rayFromTrans,const btTransform& rayToTrans,
++										const btCollisionObjectWrapper* collisionObjectWrap,
++										btCollisionWorld::RayResultCallback& resultCallback);
++extern RayTestSingleCallback		gRayTestSingleCallback;
++
++
++typedef bool (*DrawCustomShapeCallback) (btCollisionWorld * mWorld, btIDebugDraw * mDebugDrawer, const btCollisionShape * mShape, const btTransform& worldTransform, const btVector3& color);
++
++extern DrawCustomShapeCallback		gDrawCustomShapeCallback;
++
++
+ #endif  //BT_COLLISION_WORLD_H
