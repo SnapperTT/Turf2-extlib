@@ -55,4 +55,4 @@ EXTERNAL_LINK_DIR=$(LIB)
 
 
 # Link
-LDFLAGS=$(T2_LD_FLAGS) $(CFLAGS_DR) $(LDFLAGS_DR) -fmax-errors=5 -L $(EXTERNAL_LINK_DIR) $(T2_SDL2_CONFILG_LIBS) $(addprefix $(EXTERNAL_LINK_DIR),$(EXTERNAL_LIBS)) -lassimp -lBulletCollision_turf2 -lBulletDynamics_turf2 -lLinearMath_turf2 $(T2_TARGET_SPECIFIC_LINK_FLAGS)
+LDFLAGS=$(T2_LD_FLAGS) $(CFLAGS_DR) $(LDFLAGS_DR) -latomic -fmax-errors=5 -L $(EXTERNAL_LINK_DIR) $(T2_SDL2_CONFILG_LIBS) $(addprefix $(EXTERNAL_LINK_DIR),$(EXTERNAL_LIBS)) -lassimp -lBulletCollision_turf2 -lBulletDynamics_turf2 -lLinearMath_turf2 $(T2_TARGET_SPECIFIC_LINK_FLAGS)

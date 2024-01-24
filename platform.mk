@@ -34,7 +34,11 @@ T2_SDL2_CONFILG_LIBS=`sdl2-config --libs`
 T2_CXX_FLAGS=
 T2_TARGET_SPECIFIC_LINK_FLAGS=-ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
 T2_LD_FLAGS=-fuse-ld=lld
-T2_CFLAGS=-std=c++17 -Wall -Wno-undefined-var-template -Wno-unknown-warning-option -fno-omit-frame-pointer -fmax-errors=5 -fno-rtti
+T2_GCC_OPTIONS=
+T2_CLANG_OPTIONS=-Wno-undefined-var-template -Wno-unknown-warning-option
+T2_COMPILER_OPTIONS=$(T2_GCC_OPTIONS)
+# if using clang set T2_COMPILER_OPTIONS to T2_CLANG_OPTIONS
+T2_CFLAGS=-std=c++17 -Wall -fno-omit-frame-pointer -fmax-errors=5 -fno-rtti
 T2_INCLUDE_EXTRA=
 
 EXTRA_TARGETS=
@@ -115,6 +119,7 @@ ifeq ($(IS_OSX),yes)
   
   CC=$(TARGET)-clang
   CXX=$(TARGET)-clang++
+  T2_COMPILER_OPTIONS=$(T2_CLANG_OPTIONS)
   CXXFLAGS=-std=c++17
   AR=$(TARGET)-ar
   LD=$(TARGET)-ld
@@ -143,3 +148,6 @@ endif
 ifeq ($(PLATFORM_IS_SUPPORTED),FALSE)
   $(error Platform "$(TARGET_OS)" is not supported, edit platform.mk)
 endif
+
+# Update CFlags based on selected options
+T2_CFLAGS+= $(T2_COMPILER_OPTIONS)

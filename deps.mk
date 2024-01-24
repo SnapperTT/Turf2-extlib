@@ -280,7 +280,10 @@ btMultilevelProjectedHeightmap:
 
 # Bullet build settings
 # We only want to build the base lib, so turn everything else off and enable double precision 
-BULLET_BUILD_FLAGS=BT_USE_OPENMP=0 BUILD_BULLET3=OFF BUILD_BULLET2_DEMOS=OFF BUILD_CLSOCKET=OFF BUILD_CPU_DEMOS=OFF BUILD_ENET=OFF BUILD_EGL=OFF BUILD_EXTRAS=OFF BUILD_OPENGL3_DEMOS=OFF BUILD_PYBULLET=OFF BUILD_OPENGL3_DEMOS=OFF BUILD_PYBULLET=OFF BUILD_UNIT_TESTS=OFF BUILD_SHARED_LIBS=ON BULLET2_MULTITHREADING=ON USE_DOUBLE_PRECISION=ON CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_CXX_FLAGS=-ggdb CMAKE_RELWITHDEBINFO_POSTFIX=_turf2
+#BULLET_BUILD_SSE_FLAGS=BT_USE_SSE=ON BT_USE_SSE_IN_API=ON BT_USE_SIMD_VECTOR3=ON
+# sseflags do nothing, bullet maintainers just rely on compiler auto-optimisations
+BULLET_BUILD_SSE_FLAGS=
+BULLET_BUILD_FLAGS=$(BULLET_BUILD_SSE_FLAGS) BT_USE_OPENMP=0 BUILD_BULLET3=OFF BUILD_BULLET2_DEMOS=OFF BUILD_CLSOCKET=OFF BUILD_CPU_DEMOS=OFF BUILD_ENET=OFF BUILD_EGL=OFF BUILD_EXTRAS=OFF BUILD_OPENGL3_DEMOS=OFF BUILD_PYBULLET=OFF BUILD_OPENGL3_DEMOS=OFF BUILD_PYBULLET=OFF BUILD_UNIT_TESTS=OFF BUILD_SHARED_LIBS=ON BULLET2_MULTITHREADING=ON USE_DOUBLE_PRECISION=ON CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_CXX_FLAGS=-ggdb CMAKE_RELWITHDEBINFO_POSTFIX=_turf2
 BULLET_BUILD_FLAGS_CMAKE=$(addprefix -D,$(BULLET_BUILD_FLAGS))
 
 # Sync Repro
@@ -459,6 +462,7 @@ lua-luajit-compound-operators:
 	cd $(PWD)/lua-luajit-compound-operators/ && $(SH) ./fetch_and_apply_luajit.sh
 	ln -s $(PWD)/lua-luajit-compound-operators/link_to_lua52/src $(INCLUDE_OUT)/lua
 	ln -s $(PWD)/lua-luajit-compound-operators/link_to_luajit/src $(INCLUDE_OUT)/luajit
+	ln -s $(INCLUDE_OUT)/luajit/luajit_rolling.h $(INCLUDE_OUT)/luajit/luajit.h || :
 	@$(call hecho,"Done syncing", "lua-luajit-compound-operators"," repro") 
 	
 $(LIB)/lua-luajit-compound-operators.bin: $(LUA_ALL_DEPS) lua-luajit-compound-operators
