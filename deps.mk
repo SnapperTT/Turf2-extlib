@@ -364,6 +364,16 @@ fmt:
 	@$(call fetch_git_repro,fmt,https://github.com/fmtlib/fmt)
 	rm -f $(INCLUDE_OUT)/fmt
 	ln -s $(PWD)/fmt/include/fmt $(INCLUDE_OUT)/fmt
+# replace std::string with fmt_std::string
+	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::string/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.cc" -exec sed -i -e 's/std::string/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::basic_string<Char>/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.cc"  -exec sed -i -e 's/std::basic_string<Char>/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::basic_string<PathChar>/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.cc" -exec sed -i -e 's/std::basic_string<PathChar>/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/system_error(ec, vformat(fmt, args)/system_error(ec, vformat(fmt, args).c_str()/g' {} +
+	
+	
 	cp -af $(PWD)/fmt/src/* $(PWD)/fmt/include/fmt
 	@$(call hecho,"Done syncing", "fmt"," repro") 	
 
@@ -634,6 +644,9 @@ sol2:
 	sed -i 's/#include <lualib\.h>/\/\/removed lualib.h include/g' $(PWD)/sol2/single/include/sol/sol.hpp
 	rm -f $(INCLUDE_OUT)/sol
 	ln -s $(PWD)/sol2/single/include/sol $(INCLUDE_OUT)/sol
+	sed -i 's/std::string/sol::string/g' $(PWD)/sol2/single/include/sol/*
+	sed -i 's/const sol::string\& chunkname/const sol::string_view\& chunkname/g' $(PWD)/sol2/single/include/sol/*
+	patch $(PWD)/sol2/single/include/sol/sol.hpp -i sol.patch
 	@$(call hecho,"Done syncing", "sol2"," repro") 
 
 

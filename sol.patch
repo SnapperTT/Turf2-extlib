@@ -1,0 +1,139 @@
+--- sol.hpp	2024-05-03 17:52:07.704435615 +0700
++++ sol_mod.hpp	2024-05-03 17:53:57.871002449 +0700
+@@ -2748,6 +2748,11 @@ namespace sol { namespace meta {
+ 	template <typename T, typename CharT>
+ 	struct is_string_of : std::false_type { };
+ 
++#ifdef STT_STL_LIB
++template <unsigned int N, typename US, typename CharTargetT>
++struct is_string_of<stt::string_base_traits<N, US>, CharTargetT> : std::is_same<char, CharTargetT> {};
++#endif
++
+ 	template <typename CharT, typename CharTargetT, typename TraitsT, typename AllocT>
+ 	struct is_string_of<std::basic_string<CharT, TraitsT, AllocT>, CharTargetT> : std::is_same<CharT, CharTargetT> { };
+ 
+@@ -2763,10 +2768,16 @@ namespace sol { namespace meta {
+ 	template <typename T, typename CharT>
+ 	constexpr inline bool is_string_view_of_v = is_string_view_of<T, CharT>::value;
+ 
++template <typename T> struct is_stt_string : public std::false_type {};
++#ifdef STT_STL_LIB
++template <unsigned int N, typename US> struct is_stt_string<stt::string_base_traits<N,US>> : public std::true_type {};
++#endif
++template <typename T> constexpr inline bool is_stt_string_v = is_stt_string<T>::value;
++
+ 	template <typename T>
+ 	using is_string_like
+-		= meta::boolean<is_specialization_of_v<T, std::basic_string> || is_specialization_of_v<T, std::basic_string_view> || is_string_literal_array_v<T>>;
+-
++		= meta::boolean<is_specialization_of_v<T, std::basic_string> || is_specialization_of_v<T, std::basic_string_view> || is_string_literal_array_v<T> || is_stt_string_v<T>>;	
++	
+ 	template <typename T>
+ 	constexpr inline bool is_string_like_v = is_string_like<T>::value;
+ 
+@@ -8145,6 +8156,11 @@ namespace sol {
+ 		template <typename T, typename = void>
+ 		struct lua_type_of : std::integral_constant<type, type::userdata> { };
+ 
++#ifdef STT_STL_LIB
++template <unsigned int N, typename US>
++struct lua_type_of<stt::string_base_traits<N,US>> : std::integral_constant<type, type::string> { };
++#endif
++
+ 		template <typename C, typename T, typename A>
+ 		struct lua_type_of<std::basic_string<C, T, A>> : std::integral_constant<type, type::string> { };
+ 
+@@ -14017,6 +14033,19 @@ namespace sol { namespace stack {
+ 		}
+ 	};
+ 
++#ifdef STT_STL_LIB
++template <unsigned int N, typename US>
++struct unqualified_getter<stt::string_base_traits<N,US>> {
++	using S = stt::string_base_traits<N,US>;
++	static S get(lua_State* L, int index, record& tracking) {
++		tracking.use(1);
++		size_t sz;
++		const char* str = lua_tolstring(L, index, &sz);
++		return S(str,sz);
++	}
++};
++#endif
++	
+ 	template <typename Traits, typename Al>
+ 	struct unqualified_getter<std::basic_string<wchar_t, Traits, Al>> {
+ 		using S = std::basic_string<wchar_t, Traits, Al>;
+@@ -15550,6 +15579,41 @@ namespace sol { namespace stack {
+ 	};
+ #endif // char8_t
+ 
++
++
++#ifdef STT_STL_LIB
++template <unsigned int N, typename US>
++struct unqualified_pusher<stt::string_base_traits<N,US>> {
++	static int push(lua_State* L, const stt::string_base_traits<N,US>& str) {
++		if constexpr (!std::is_same_v<typename stt::string_base_traits<N,US>::value_type, char>) {
++			return stack::push(L, str.data(), str.size());
++		}
++		else {
++#if SOL_IS_ON(SOL_SAFE_STACK_CHECK)
++			luaL_checkstack(L, 1, detail::not_enough_stack_space_string);
++#endif // make sure stack doesn't overflow
++			lua_pushlstring(L, str.c_str(), str.size());
++			return 1;
++		}
++	}
++
++	static int push(lua_State* L, const stt::string_base_traits<N,US>& str, std::size_t sz) {
++		if constexpr (!std::is_same_v<typename stt::string_base_traits<N,US>::value_type, char>) {
++			return stack::push(L, str.data(), sz);
++		}
++		else {
++#if SOL_IS_ON(SOL_SAFE_STACK_CHECK)
++			luaL_checkstack(L, 1, detail::not_enough_stack_space_string);
++#endif // make sure stack doesn't overflow
++			lua_pushlstring(L, str.c_str(), sz);
++			return 1;
++		}
++	}
++};
++#endif
++
++
++
+ 	template <typename Ch, typename Traits, typename Al>
+ 	struct unqualified_pusher<std::basic_string<Ch, Traits, Al>> {
+ 		static int push(lua_State* L, const std::basic_string<Ch, Traits, Al>& str) {
+@@ -16388,8 +16452,8 @@ namespace sol {
+ 		using typical_chunk_name_t = char[SOL_ID_SIZE_I_];
+ 		using typical_file_chunk_name_t = char[SOL_FILE_ID_SIZE_I_];
+ 
+-		inline const sol::string& default_chunk_name() {
+-			static const sol::string name = "";
++		inline const sol::string_view& default_chunk_name() {
++			static const sol::string_view name = "";
+ 			return name;
+ 		}
+ 
+@@ -16412,7 +16476,7 @@ namespace sol {
+ 				return &basechunkname[0];
+ 			}
+ 			else {
+-				return chunkname.c_str();
++				return chunkname.data();
+ 			}
+ 		}
+ 
+@@ -21355,6 +21419,11 @@ namespace sol {
+ 			static constexpr bool value = std::is_same_v<decltype(test<T>(0)), meta::sfinae_yes_t>;
+ 		};
+ 
++#ifdef STT_STL_LIB
++template<unsigned int N, typename US>
++struct has_find_test<stt::string_base_traits<N,US>> : public std::false_type {};
++#endif
++	
+ 		template <typename T>
+ 		struct has_find_test<T, std::enable_if_t<meta::is_lookup<T>::value>> {
+ 		private:
