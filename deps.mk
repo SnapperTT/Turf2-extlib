@@ -36,6 +36,10 @@ TEXTUREC=$(AUTOGEN)/texturec.lzz
 EXTLIB=$(PWD)
 include platform.mk
 
+# Copy dll stuff
+SYSTEM_SO_SRC=$(addprefix $(T2_SYSTEM_SO_LOCATION), $(T2_SYSTEM_SO))
+SYSTEM_SO_DST=$(addprefix $(LIB), $(T2_SYSTEM_SO))
+
 #######################################################################################
 # function hecho - prints $(1)$(2)$(3) with $(2) in bold
 define hecho
@@ -126,7 +130,7 @@ common: make_dirs
 # as built. Binary targets also depend on the previous target (so bgfx.bin depends on assimp.bin)
 # 
 ALL_SOURCES=$(EXTRA_TARGETS) lzz-bin assimp btMultilevelProjectedHeightmap bullet bx bimg bgfx bgfx-header-extension-library concurrentqueue FastString fmt glm libbacktrace libdeflate lua-luajit-compound-operators nanovg nanovg-command-buffer node-unidecode-cxx quant rapidjson readerwriterqueue sdl-stb-font snappy sol2 stb stt-obj sttr tsl vecgui xxHash
-ALL_BINARIES=$(LIB)/assimp.bin $(LIB)/bgfx.bin $(LIB)/bullet.bin $(LIB)/libbacktrace.bin $(LIB)/libdeflate.bin $(LIB)/lua-luajit-compound-operators.bin $(LIB)/snappy.bin
+ALL_BINARIES=$(SYSTEM_SO_DST) $(LIB)/assimp.bin $(LIB)/bgfx.bin $(LIB)/bullet.bin $(LIB)/libbacktrace.bin $(LIB)/libdeflate.bin $(LIB)/lua-luajit-compound-operators.bin $(LIB)/snappy.bin
 
 # Dependancy list to make things build *in order*
 # You can disable this to make things all build at the same time (if you can handle the console spam)
@@ -138,6 +142,11 @@ LIBDEFLATE_ALL_DEPS=$(LIBBACKTRACE_ALL_DEPS) $(LIB)/libbacktrace.bin
 LUA_ALL_DEPS=$(LIBDEFLATE_ALL_DEPS) $(LIB)/libdeflate.bin
 SNAPPY_ALL_DEPS=$(LUA_ALL_DEPS) $(LIB)/lua-luajit-compound-operators.bin
 
+
+#######################################################################################
+# .dll files (libc++, etc)
+$(SYSTEM_SO_DST):
+	cp $(SYSTEM_SO_SRC) $(LIB)
 
 #######################################################################################
 # lzz-bin
@@ -549,6 +558,8 @@ rapidjson:
 # Fix -Wclass-memaccess wobbly
 	sed -i 's/std::memcpy(m,/std::memcpy((void*)m,/g' $(PWD)/rapidjson/include/rapidjson/document.h
 	sed -i 's/std::memcpy(e,/std::memcpy((void*)e,/g' $(PWD)/rapidjson/include/rapidjson/document.h
+# fix illegal assignement operator
+	sed -i 's/GenericStringRef\& operator=(const GenericStringRef\& rhs)/\/\/GenericStringRef& operator=(const GenericStringRef& rhs)/g' $(PWD)/rapidjson/include/rapidjson/document.h
 # fix itterator
 	patch -s -p0 $(PWD)/rapidjson/include/rapidjson/document.h < $(PWD)/rapidjson.patch
 # Symlink the include
@@ -659,6 +670,17 @@ stb:
 	rm -f $(INCLUDE_OUT)/stb
 	ln -s $(PWD)/stb $(INCLUDE_OUT)/stb
 	@$(call hecho,"Done syncing", "stb"," repro") 	
+
+
+#######################################################################################
+# stt-stl
+stt-stl:
+	@make -s common
+	@rm -rf $(TEMP)/stt-stl
+	@$(call fetch_git_repro,stt-stl,https://github.com/SnapperTT/stt-stl)
+	rm -f $(INCLUDE_OUT)/stt-stl
+	ln -s $(PWD)/stt-stl $(INCLUDE_OUT)/stt-stl
+	@$(call hecho,"Done syncing", "stt-stl"," repro") 
 
 
 #######################################################################################

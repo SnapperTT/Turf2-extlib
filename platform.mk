@@ -40,6 +40,10 @@ T2_COMPILER_OPTIONS=$(T2_GCC_OPTIONS)
 # if using clang set T2_COMPILER_OPTIONS to T2_CLANG_OPTIONS
 T2_CFLAGS=-std=c++17 -Wall -fno-omit-frame-pointer -fmax-errors=5 -fno-rtti
 T2_INCLUDE_EXTRA=
+# .dll files that need to be copied from the compiler's bin
+T2_SYSTEM_SO=
+T2_SYSTEM_SO_LOCATION=
+
 
 EXTRA_TARGETS=
 
@@ -77,7 +81,9 @@ ifeq ($(TARGET_OS),win)
   T2_LD_FLAGS= -fuse-ld=lld
   # if lld does not exist on on your build, symlink x86_64-w64-mingw32-lld as lld (or just blank out the above variable)
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/bx_compat/mingw $(EXTLIB)/include/sdl-mingw/
-  
+  T2_SYSTEM_SO=libstdc++-6.dll libintl-8.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libiconv-2.dll libssp-0.dll
+  T2_SYSTEM_SO_LOCATION=/usr/$(TARGET)/bin/
+
   EXTRA_TARGETS=$(LIB)/sdl-mingw.bin
 endif
 

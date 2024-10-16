@@ -37,7 +37,7 @@ EXTERNAL_LIBS=$(LIB_LUA_STATIC) libsnappy.a libbacktrace.a $(LIB_BGFX_STATIC)
 # External shared libraries
 EXTERNAL_SO_LINUX=libassimp.so libBulletCollision_turf2.so libBulletDynamics_turf2.so libLinearMath_turf2.so libdeflate.so
 EXTERNAL_SO_WIN=libassimp.dll libBulletCollision_turf2.dll libBulletDynamics_turf2.dll libLinearMath_turf2.dll libdeflate.dll
-EXTERNAL_SO_WIN2=libstdc++-6.dll libintl-8.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libiconv-2.dll libssp-0.dll SDL2.dll
+EXTERNAL_SO_WIN2=SDL2.dll
 EXTERNAL_SO_OSX=
 
 ifeq ($(TARGET_OS),linux)
@@ -47,7 +47,7 @@ else ifeq ($(TARGET_OS),win)
 else ifeq ($(TARGET_OS),osx)
   EXTERNAL_SO=$(EXTERNAL_SO_OSX)
 endif
-EXTERNAL_SO:=$(EXTERNAL_SO) $(LIB_LUA_DYNAMIC)
+EXTERNAL_SO:=$(EXTERNAL_SO) $(T2_SYSTEM_SO) $(LIB_LUA_DYNAMIC)
 
 
 # Linker flags
