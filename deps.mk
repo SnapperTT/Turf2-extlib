@@ -129,7 +129,7 @@ common: make_dirs
 # Note: Binary targets create a .bin file in the $(LIB) directory to mark the dependency
 # as built. Binary targets also depend on the previous target (so bgfx.bin depends on assimp.bin)
 # 
-ALL_SOURCES=$(EXTRA_TARGETS) lzz-bin assimp btMultilevelProjectedHeightmap bullet bx bimg bgfx bgfx-header-extension-library concurrentqueue FastString fmt glm libbacktrace libdeflate lua-luajit-compound-operators nanovg nanovg-command-buffer node-unidecode-cxx quant rapidjson readerwriterqueue sdl-stb-font snappy sol2 stb stt-obj sttr tsl vecgui xxHash
+ALL_SOURCES=$(EXTRA_TARGETS) lzz-bin assimp btMultilevelProjectedHeightmap bullet bx bimg bgfx bgfx-header-extension-library concurrentqueue FastString fmt glm libbacktrace libdeflate lua-luajit-compound-operators nanovg nanovg-command-buffer node-unidecode-cxx quant rapidjson readerwriterqueue sdl-stb-font snappy sol2 stb stt-obj sttr tsl vecgui vg-renderer xxHash
 ALL_BINARIES=$(SYSTEM_SO_DST) $(LIB)/assimp.bin $(LIB)/bgfx.bin $(LIB)/bullet.bin $(LIB)/libbacktrace.bin $(LIB)/libdeflate.bin $(LIB)/lua-luajit-compound-operators.bin $(LIB)/snappy.bin
 
 # Dependancy list to make things build *in order*
@@ -185,7 +185,7 @@ $(LIB)/assimp.bin: $(ASSIMP_ALL_DEPS) assimp
 	$(CMAKE) -G "Unix Makefiles" $(ASSIMP_BUILD_FLAGS_CMAKE) $(CMAKE_TOOLCHAIN) -B $(TEMP)/assimp -S $(PWD)/assimp
 	cd $(TEMP)/assimp ; make -s
 	cp -v $(TEMP)/assimp/bin/lib* $(LIB)/
-	mv -f $(LIB)/libassimp-5.dll $(LIB)/libassimp.dll || : 
+#	mv -f $(LIB)/libassimp-5.dll $(LIB)/libassimp.dll || : 
 	cp -va $(TEMP)/assimp/include/assimp/config.h $(INCLUDE_OUT)/assimp/
 	@echo "foo" > $(LIB)/assimp.bin
 	@$(call hecho,"Done building", "assimp","")
@@ -636,7 +636,8 @@ $(LIB)/snappy.bin: $(SNAPPY_ALL_DEPS) snappy
 	$(CMAKE) -G "Unix Makefiles" $(SNAPPY_FLAGS_CMAKE) $(CMAKE_TOOLCHAIN) -B $(TEMP)/snappy -S $(PWD)/snappy
 	cd $(TEMP)/snappy ; make -s
 	cd $(TEMP)/snappy ; cp -avf *.a *.h $(LIB)/
-	mv -f $(LIB)/libsnappy.dll.a $(LIB)/libsnappy.a || :
+	cd $(TEMP)/snappy ; [ -e *.dll ] && cp -avf *.dll $(LIB)/  || :
+	mv -f $(LIB)/libsnappy.dll.a $(LIB)/libsnappy.a  || :
 	@echo "foo" > $(LIB)/snappy.bin
 	@$(call hecho,"Done building", "snappy","")
 
@@ -725,6 +726,17 @@ vecgui:
 	ln -s $(PWD)/vecgui/vgui_sttr/ $(INCLUDE_OUT)/vecgui
 	@$(call hecho,"Done syncing", "vecgui"," repro") 
 
+
+#######################################################################################
+# vg-renderer
+vg-renderer:
+	@make -s common
+	@rm -rf $(TEMP)/vg-renderer
+	@$(call fetch_git_repro,vg-renderer,https://github.com/SnapperTT/vg-renderer)
+	sed -i 's/#include <vg/\/\/#include <vg/g' $(PWD)/vg-renderer/src/*.cpp
+	rm -f $(INCLUDE_OUT)/vg-renderer
+	ln -s $(PWD)/vg-renderer/ $(INCLUDE_OUT)/vg-renderer
+	@$(call hecho,"Done syncing", "vg-renderer"," repro") 
 
 #######################################################################################
 # xxHash

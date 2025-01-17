@@ -70,7 +70,7 @@ int main(int argv, char** args) {
 					break;
 					
 				case SDL_MOUSEBUTTONDOWN: {
-					printf("Key up!");
+					printf("Mouse down!");
 					}
 				break;
 				}
