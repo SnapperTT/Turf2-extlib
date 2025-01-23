@@ -27,7 +27,7 @@ LIB=$(EXTLIB)/lib_lin_x64/
 
 LUA_MAKE=linux MYCFLAGS=-g
 LUAJIT_MAKE=
-BGFX_MAKE=make -s linux CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 
 # T2 flags
 T2_SDL2_CONFILG_LIBS=`sdl2-config --libs`

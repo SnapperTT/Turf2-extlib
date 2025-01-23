@@ -197,6 +197,9 @@ bx:
 	@make -s common
 	@rm -rf $(TEMP)/bx
 	@$(call fetch_git_repro,bx,"https://github.com/bkaradzic/bx")
+# patch bx's debug functions
+	patch -R $(PWD)/bx/src/debug.cpp -i bx_debug.cpp.patch
+	patch -R $(PWD)/bx/include/bx/debug.h -i bx_debug.h.patch
 	rm -f $(INCLUDE_OUT)/bx
 	ln -s $(PWD)/bx/include/bx $(INCLUDE_OUT)/bx
 	ln -s $(PWD)/bx/include/compat $(INCLUDE_OUT)/bx_compat

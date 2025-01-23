@@ -1,0 +1,11 @@
+--- debug.h	2025-01-23 20:29:10.177921230 +0800
++++ debug.h.orig	2025-01-23 20:28:42.161183778 +0800
+@@ -11,8 +11,6 @@
+ 
+ namespace bx
+ {
+-	typedef void(*debugOutputCallbackFn)(const char*);
+-	extern debugOutputCallbackFn g_debugOutputCallback; 
+ 	class  Error;
+ 	class  StringView;
+ 	struct WriterI;

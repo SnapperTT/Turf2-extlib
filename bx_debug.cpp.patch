@@ -1,0 +1,16 @@
+--- debug.cpp	2025-01-23 20:29:44.311340091 +0800
++++ debug.cpp.orig	2025-01-23 20:28:34.947832130 +0800
+@@ -73,13 +73,8 @@ namespace bx
+ #endif // BX
+ 	}
+ 
+-	debugOutputCallbackFn g_debugOutputCallback = 0;
+ 	void debugOutput(const char* _out)
+ 	{
+-	if (g_debugOutputCallback) {
+-		g_debugOutputCallback(_out);
+-		return;
+-		}
+ #if BX_CRT_NONE
+ 		crt0::debugOutput(_out);
+ #elif BX_PLATFORM_ANDROID
