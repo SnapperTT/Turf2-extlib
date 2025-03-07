@@ -20,10 +20,7 @@ namespace stt {
 	}
 	
 	
-int main (int argc, char ** argv) {
-	static stt::crt_allocator alloc;
-	stt::setDefaultAllocator(&alloc);
-	
+int main (int argc, char ** argv) {	
 	// integer test
 	stt::vector32<int> ivec;
 	for (int i = 0; i < 40; ++i) {

@@ -146,7 +146,7 @@ SNAPPY_ALL_DEPS=$(LUA_ALL_DEPS) $(LIB)/lua-luajit-compound-operators.bin
 #######################################################################################
 # .dll files (libc++, etc)
 $(SYSTEM_SO_DST):
-	cp $(SYSTEM_SO_SRC) $(LIB)
+	cp -a $(SYSTEM_SO_SRC) $(LIB)
 
 #######################################################################################
 # lzz-bin
@@ -236,7 +236,7 @@ bgfx:
 	@make -s common
 	@rm -rf $(TEMP)/bgfx
 	@$(call fetch_git_repro,bgfx,"https://github.com/bkaradzic/bgfx")
-	sed -i '/if (s_extension\[Extension::ARB_clip/,+6{ s/^\/\///}' $(PWD)/bgfx/src/renderer_gl.cpp
+#	sed -i '/if (s_extension\[Extension::ARB_clip/,+6{ s/^\/\///}' $(PWD)/bgfx/src/renderer_gl.cpp
 # Speed up compile by skipping tools and examples
 # note - we still need libbimg_encode.a, so we still have to make tools. Patch a custom rule to build libimg_encode without the other stuff
 	echo -e "if _OPTIONS[\"with-tools-turf2\"] then "       >> $(PWD)/bgfx/scripts/genie.lua
@@ -584,9 +584,10 @@ readerwriterqueue:
 
 #######################################################################################
 # sdl
+# Todo - filter for SDL3
 $(LIB)/sdl-mingw.bin:
 	@make -s common
-	@$(call fetch_git_release,sdl-mingw,"https://github.com/libsdl-org/SDL",mingw,tar.gz)
+	@$(call fetch_git_release,sdl-mingw,"https://github.com/libsdl-org/SDL",2.32.2-mingw,tar.gz)
 	cp -af $(PWD)/sdl-mingw/x86_64-w64-mingw32/lib/* $(EXTLIB)/lib_win_x64
 	cp -af $(PWD)/sdl-mingw/x86_64-w64-mingw32/bin/* $(EXTLIB)/lib_win_x64
 	rm -f $(INCLUDE_OUT)/sdl-mingw
