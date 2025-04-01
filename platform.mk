@@ -30,7 +30,7 @@ LUAJIT_MAKE=
 BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 
 # T2 flags
-T2_SDL2_CONFILG_LIBS=`sdl2-config --libs`
+T2_SDL2_CONFILG_LIBS=`pkg-config --libs sdl3`
 T2_CXX_FLAGS=
 T2_TARGET_SPECIFIC_LINK_FLAGS=-ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
 T2_LD_FLAGS=-fuse-ld=lld
@@ -75,7 +75,7 @@ ifeq ($(TARGET_OS),win)
   BGFX_MAKE=make -s mingw-gcc-debug64 mingw-gcc-release64 CC='$(CC)' CXX='$(CXX)' CXXFLAGS+='$(CXXFLAGS) -DM_PI=3.14159265358979323846264338327950288  -fuse-ld=lld'
   
   # T2 flags
-  T2_SDL2_CONFILG_LIBS=-lmingw32 -lSDL2main -lSDL2
+  T2_SDL2_CONFILG_LIBS=-lmingw32 -lSDL3main -lSDL3
   T2_CXX_FLAGS= -Wa,-mbig-obj
   T2_TARGET_SPECIFIC_LINK_FLAGS= -Wl,--disable-dynamicbase -Wl,--disable-high-entropy-va $(LIB_LUA_LINK_FLAGS) -mwindows -lopengl32 -lws2_32 -liphlpapi -lpsapi -lintl 
   T2_LD_FLAGS= -fuse-ld=lld
@@ -84,7 +84,7 @@ ifeq ($(TARGET_OS),win)
   T2_SYSTEM_SO=libstdc++-6.dll libintl-8.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libiconv-2.dll libssp-0.dll
   T2_SYSTEM_SO_LOCATION=/usr/$(TARGET)/bin/
 
-  EXTRA_TARGETS=$(LIB)/sdl-mingw.bin
+  EXTRA_TARGETS=$(LIB)/sdl3-mingw.bin
 endif
 
 #######################################################################################
@@ -142,13 +142,13 @@ ifeq ($(IS_OSX),yes)
   BGFX_MAKE=OSXCROSS=$(OSX_PREFIX) GENIE="../bx/tools/bin/linux/genie --with-macos=$(OSX_DEPLOYMENT_TARGET)" make $(BGFX_TARGET) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
   
   # T2 flags
-  T2_SDL2_CONFILG_LIBS=$(EXTERNAL_LINK_DIR_OSX)SDL2
+  T2_SDL2_CONFILG_LIBS=$(EXTERNAL_LINK_DIR_OSX)SDL3
   T2_CXX_FLAGS= -mmacosx-version-min=$(OSX_DEPLOYMENT_TARGET) -pagezero_size 10000 -image_base 100000000
   T2_TARGET_SPECIFIC_LINK_FLAGS= $(EXTERNAL_LINK_DIR_OSX)libintl.a -liconv -framework OpenGL -framework Cocoa -framework QuartzCore -Wl,"-weak_framework,Metal" -Wl,"-weak_framework,MetalKit" -framework IOKit
   T2_LD_FLAGS=
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/sdl-osx/ $(EXTLIB)/include/intl-osx/
   
-  EXTRA_TARGETS=$(LIB)/sdl-osx.bin $(LIB)/gettext.bin
+  EXTRA_TARGETS=$(LIB)/sdl3-osx.bin $(LIB)/gettext.bin
 endif
 
 ifeq ($(PLATFORM_IS_SUPPORTED),FALSE)

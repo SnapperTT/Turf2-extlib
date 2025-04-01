@@ -1,5 +1,17 @@
 #include <cstdio>
 
+#ifdef __WIN32
+	#include <extlib/include/sdl-mingw/SDL.h>
+	//#include <extlib/include/sdl-mingw/SDL_syswm.h>
+#else 
+	#if __APPLE__
+		#include <extlib/include/sdl-osx/SDL.h>
+		//#include <extlib/include/sdl-osx/SDL_syswm.h>
+	#else
+		#include <SDL3/SDL.h>
+	#endif
+#endif
+
 #define BX_CONFIG_DEBUG 1
 #include <bx/bx.h>
 #include <bx/math.h>
@@ -9,18 +21,6 @@
 #include <extlib/include/bgfxh/bgfxh.h>
 #include <extlib/include/bgfxh/sdlWindow.h>
 
-#ifdef __WIN32
-	#include <extlib/include/sdl-mingw/SDL.h>
-	#include <extlib/include/sdl-mingw/SDL_syswm.h>
-#else 
-	#if __APPLE__
-		#include <extlib/include/sdl-osx/SDL.h>
-		#include <extlib/include/sdl-osx/SDL_syswm.h>
-	#else
-		#include <SDL2/SDL.h>
-		#include <SDL2/SDL_syswm.h>
-	#endif
-#endif
 
 
 int main(int argv, char** args) {
@@ -40,7 +40,7 @@ int main(int argv, char** args) {
 		init.resolution.height = wh;
 		init.resolution.reset  = m_resetFlags;
 	
-	SDL_Window* mWindow = SDL_CreateWindow("Turf 2 Windowing Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ww, wh, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	SDL_Window* mWindow = SDL_CreateWindow("Turf 2 Windowing Test", ww, wh, SDL_WINDOW_RESIZABLE);
 	bgfxh::initSdlWindowAndBgfx (mWindow, &init);
 	
 	bgfxh::init (ww, wh, "shaders/" + bgfxh::getShaderDirectoryFromRenderType() + "/");
@@ -50,26 +50,20 @@ int main(int argv, char** args) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
-				case SDL_QUIT:
+				case SDL_EVENT_QUIT:
 					wantsExit = true;
 					break;
 
-				case SDL_WINDOWEVENT: {
-					const SDL_WindowEvent& wev = event.window;
-					switch (wev.event) {
-						case SDL_WINDOWEVENT_CLOSE:
-							wantsExit = true;
-							break;
-						}
-					}
+				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+					wantsExit = true;
 					break;
-					
-				case SDL_KEYDOWN: {
+			
+				case SDL_EVENT_KEY_DOWN: {
 					printf("Key down!");
 					}
 					break;
 					
-				case SDL_MOUSEBUTTONDOWN: {
+				case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 					printf("Mouse down!");
 					}
 				break;
@@ -85,7 +79,10 @@ int main(int argv, char** args) {
 		bgfx::touch(0);
 		bgfx::frame();
 		}
-	
+
+	bgfxh::deInit();
+	bgfx::shutdown();
+		
 	SDL_DestroyWindow(mWindow);
 	printf("Window test exited normally!\n");
 	return 1;

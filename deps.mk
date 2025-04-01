@@ -608,6 +608,28 @@ $(LIB)/sdl-osx.bin:
 	@echo "foo" > $(LIB)/sdl-osx.bin
 	@$(call hecho,"Done syncing", "SDL Osx"," repro")
 
+$(LIB)/sdl3-mingw.bin:
+	@make -s common
+	@$(call fetch_git_release,sdl-mingw,"https://github.com/libsdl-org/SDL",mingw,tar.gz)
+	cp -af $(PWD)/sdl-mingw/x86_64-w64-mingw32/lib/* $(EXTLIB)/lib_win_x64
+	cp -af $(PWD)/sdl-mingw/x86_64-w64-mingw32/bin/* $(EXTLIB)/lib_win_x64
+	rm -f $(INCLUDE_OUT)/sdl-mingw
+	ln -s $(PWD)/sdl-mingw/x86_64-w64-mingw32/include/SDL3 $(INCLUDE_OUT)/sdl-mingw
+	ln -fs $(INCLUDE_OUT)/sdl-mingw $(INCLUDE_OUT)/sdl-mingw/SDL3
+	@echo "foo" > $(LIB)/sdl3-mingw.bin
+	@$(call hecho,"Done syncing", "SDL MingW"," repro")
+
+$(LIB)/sdl3-osx.bin:
+	@make -s common
+	@rm -rf $(TEMP)/sdl
+	@$(call fetch_git_release,sdl-osx,"https://github.com/libsdl-org/SDL",dmg,dmg)
+	mkdir -p $(TEMP)/sdl
+	cd $(TEMP)/sdl && 7z x $(PWD)/sdl-osx/*.dmg
+	cp -raf $(TEMP)/sdl/SDL3/SDL3.framework/Versions/A/SDL3 $(LIB)
+	cp -raf $(TEMP)/sdl/SDL3/SDL3.framework/Versions/A/Headers $(INCLUDE_OUT)/sdl-osx
+	ln -fs $(INCLUDE_OUT)/sdl-osx $(INCLUDE_OUT)/sdl-osx/SDL3
+	@echo "foo" > $(LIB)/sdl3-osx.bin
+	@$(call hecho,"Done syncing", "SDL Osx"," repro")
 
 #######################################################################################
 # sdl-stb-font
