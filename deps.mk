@@ -329,6 +329,8 @@ bullet:
 # Fix unused resultNormal
 	sed -i '1238s/btVector3 resultNormal/\/\/btVector3 resultNormal/' $(PWD)/bullet/src/BulletCollision/BroadphaseCollision/btDbvt.h
 	sed -i '1296s/btVector3 resultNormal/\/\/btVector3 resultNormal/' $(PWD)/bullet/src/BulletCollision/BroadphaseCollision/btDbvt.h
+# Patch cmake lists
+	sed -i 's/cmake_minimum_required(VERSION 2.4.3)/cmake_minimum_required(VERSION 3.5)/' $(PWD)/bullet/CMakeLists.txt
 	@$(call hecho,"Done syncing", "bullet"," repro")
 
 # Compile Bullet lib
@@ -685,6 +687,7 @@ sol2:
 	sed -i 's/std::string/sol::string/g' $(PWD)/sol2/single/include/sol/*
 	sed -i 's/const sol::string\& chunkname/const sol::string_view\& chunkname/g' $(PWD)/sol2/single/include/sol/*
 	patch $(PWD)/sol2/single/include/sol/sol.hpp -i sol.patch
+	sed -i '6766s/this->construct/new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...); return **this;\/\//' $(PWD)/sol2/single/include/sol/sol.hpp
 	@$(call hecho,"Done syncing", "sol2"," repro") 
 
 

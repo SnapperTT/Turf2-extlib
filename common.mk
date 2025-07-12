@@ -623,6 +623,7 @@ sol2:
 	sed -i 's/#include <lua\.h>/\/\/removed lua.h include/g' $(PWD)/sol2/single/include/sol/sol.hpp
 	sed -i 's/#include <lauxlib\.h>/\/\/removed lauxlib.h include/g' $(PWD)/sol2/single/include/sol/sol.hpp
 	sed -i 's/#include <lualib\.h>/\/\/removed lualib.h include/g' $(PWD)/sol2/single/include/sol/sol.hpp
+	sed -i '6766s/this->construct(std::forward<Args>(args)\.\.\.)\;/new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...); return **this; ' $(PWD)/sol2/single/include/sol/sol.hpp
 	rm -f $(INCLUDE_OUT)/sol
 	ln -s $(PWD)/sol2/single/include/sol $(INCLUDE_OUT)/sol
 	@$(call hecho,"Done syncing", "sol2"," repro") 
