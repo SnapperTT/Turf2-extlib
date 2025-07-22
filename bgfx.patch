@@ -1,16 +1,16 @@
-#diff -ruN ../bgfx_old/bgfx/include/bgfx/bgfx.h ./include/bgfx/bgfx.h
---- ../bgfx_old/bgfx/include/bgfx/bgfx.h	2025-03-07 11:52:38.306749738 +0800
-+++ ./include/bgfx/bgfx.h	2025-03-07 11:51:46.259782112 +0800
+diff -ruN bgfx_old/include/bgfx/bgfx.h bgfx_new/include/bgfx/bgfx.h
+--- bgfx_old/include/bgfx/bgfx.h	2025-07-22 20:21:03.753281124 +0800
++++ include/bgfx/bgfx.h	2025-07-22 20:42:39.634605298 +0800
 @@ -26,6 +26,8 @@
  /// BGFX
  namespace bgfx
- {
+ {	
 +	typedef void(*abortHandlerFunction)(const char*);
 +	extern abortHandlerFunction g_abortHandler; 
  	/// Fatal error enum.
  	///
  	/// @attention C99's equivalent binding is `bgfx_fatal_t`.
-@@ -2024,6 +2026,9 @@
+@@ -2162,6 +2164,9 @@
  	/// @attention C99's equivalent binding is `bgfx_get_renderer_name`.
  	///
  	const char* getRendererName(RendererType::Enum _type);
@@ -20,9 +20,9 @@
  
  	/// Initialize the bgfx library.
  	///
-#diff -ruN ../bgfx_old/bgfx/src/bgfx.cpp ./src/bgfx.cpp
---- ../bgfx_old/bgfx/src/bgfx.cpp	2025-03-07 11:52:38.310083091 +0800
-+++ ./src/bgfx.cpp	2025-03-07 11:53:17.953646449 +0800
+diff -ruN bgfx_old/src/bgfx.cpp bgfx_new/src/bgfx.cpp
+--- bgfx_old/src/bgfx.cpp	2025-07-22 20:21:03.756614469 +0800
++++ src/bgfx.cpp	2025-07-22 20:19:15.062890046 +0800
 @@ -27,6 +27,7 @@
  
  namespace bgfx
@@ -47,7 +47,7 @@
  			abort();
  		}
  		else
-@@ -3443,6 +3446,12 @@
+@@ -3474,6 +3477,12 @@
  		return s_rendererCreator[_type].name;
  	}
  
@@ -60,10 +60,10 @@
  	PlatformData::PlatformData()
  		: ndt(NULL)
  		, nwh(NULL)
-#diff -ruN ../bgfx_old/bgfx/src/bgfx_p.h ./src/bgfx_p.h
---- ../bgfx_old/bgfx/src/bgfx_p.h	2025-03-07 11:52:38.310083091 +0800
-+++ ./src/bgfx_p.h	2025-03-07 11:50:45.019429838 +0800
-@@ -3073,6 +3073,7 @@
+diff -ruN bgfx_old/src/bgfx_p.h bgfx_new/src/bgfx_p.h
+--- bgfx_old/src/bgfx_p.h	2025-07-22 20:21:03.756614469 +0800
++++ src/bgfx_p.h	2025-07-22 20:19:15.062890046 +0800
+@@ -2980,6 +2980,7 @@
  		virtual ~RendererContextI() = 0;
  		virtual RendererType::Enum getRendererType() const = 0;
  		virtual const char* getRendererName() const = 0;
@@ -71,10 +71,10 @@
  		virtual bool isDeviceRemoved() = 0;
  		virtual void flip() = 0;
  		virtual void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) = 0;
-#diff -ruN ../bgfx_old/bgfx/src/renderer_d3d11.cpp ./src/renderer_d3d11.cpp
---- ../bgfx_old/bgfx/src/renderer_d3d11.cpp	2025-03-07 11:52:38.313416444 +0800
-+++ ./src/renderer_d3d11.cpp	2025-03-07 11:50:45.022763191 +0800
-@@ -1743,6 +1743,24 @@
+diff -ruN bgfx_old/src/renderer_d3d11.cpp bgfx_new/src/renderer_d3d11.cpp
+--- bgfx_old/src/renderer_d3d11.cpp	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_d3d11.cpp	2025-07-22 20:19:15.062890046 +0800
+@@ -1744,6 +1744,24 @@
  		{
  			return BGFX_RENDERER_DIRECT3D11_NAME;
  		}
@@ -99,10 +99,10 @@
  
  		void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) override
  		{
-#diff -ruN ../bgfx_old/bgfx/src/renderer_d3d12.cpp ./src/renderer_d3d12.cpp
---- ../bgfx_old/bgfx/src/renderer_d3d12.cpp	2025-03-07 11:52:38.316749796 +0800
-+++ ./src/renderer_d3d12.cpp	2025-03-07 11:50:45.022763191 +0800
-@@ -1706,6 +1706,29 @@
+diff -ruN bgfx_old/src/renderer_d3d12.cpp bgfx_new/src/renderer_d3d12.cpp
+--- bgfx_old/src/renderer_d3d12.cpp	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_d3d12.cpp	2025-07-22 20:19:15.062890046 +0800
+@@ -1707,6 +1707,29 @@
  		{
  			return BGFX_RENDERER_DIRECT3D12_NAME;
  		}
@@ -132,10 +132,10 @@
  
  		bool isDeviceRemoved() override
  		{
-#diff -ruN ../bgfx_old/bgfx/src/renderer_gl.cpp ./src/renderer_gl.cpp
---- ../bgfx_old/bgfx/src/renderer_gl.cpp	2025-03-07 11:52:38.316749796 +0800
-+++ ./src/renderer_gl.cpp	2025-03-07 11:50:45.022763191 +0800
-@@ -2936,12 +2936,12 @@
+diff -ruN bgfx_old/src/renderer_gl.cpp bgfx_new/src/renderer_gl.cpp
+--- bgfx_old/src/renderer_gl.cpp	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_gl.cpp	2025-07-22 20:19:15.062890046 +0800
+@@ -2941,12 +2941,12 @@
  						);
  				}
  
@@ -154,7 +154,7 @@
  				{
  					g_caps.homogeneousDepth = true;
  					g_caps.originBottomLeft = true;
-@@ -3262,6 +3262,16 @@
+@@ -3267,6 +3267,16 @@
  		{
  			return BGFX_RENDERER_OPENGL_NAME;
  		}
@@ -171,9 +171,9 @@
  
  		bool isDeviceRemoved() override
  		{
-#diff -ruN ../bgfx_old/bgfx/src/renderer_mtl.mm ./src/renderer_mtl.mm
---- ../bgfx_old/bgfx/src/renderer_mtl.mm	2025-03-07 11:52:38.316749796 +0800
-+++ ./src/renderer_mtl.mm	2025-03-07 11:50:45.026096543 +0800
+diff -ruN bgfx_old/src/renderer_mtl.mm bgfx_new/src/renderer_mtl.mm
+--- bgfx_old/src/renderer_mtl.mm	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_mtl.mm	2025-07-22 20:19:15.062890046 +0800
 @@ -957,6 +957,8 @@
  		{
  			return BGFX_RENDERER_METAL_NAME;
@@ -183,9 +183,9 @@
  
  		void createIndexBuffer(IndexBufferHandle _handle, const Memory* _mem, uint16_t _flags) override
  		{
-#diff -ruN ../bgfx_old/bgfx/src/renderer_noop.cpp ./src/renderer_noop.cpp
---- ../bgfx_old/bgfx/src/renderer_noop.cpp	2025-03-07 11:52:38.316749796 +0800
-+++ ./src/renderer_noop.cpp	2025-03-07 11:50:45.022763191 +0800
+diff -ruN bgfx_old/src/renderer_noop.cpp bgfx_new/src/renderer_noop.cpp
+--- bgfx_old/src/renderer_noop.cpp	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_noop.cpp	2025-07-22 20:19:15.059556700 +0800
 @@ -90,6 +90,8 @@
  		{
  			return BGFX_RENDERER_NOOP_NAME;
@@ -195,10 +195,10 @@
  
  		bool isDeviceRemoved() override
  		{
-#diff -ruN ../bgfx_old/bgfx/src/renderer_vk.cpp ./src/renderer_vk.cpp
---- ../bgfx_old/bgfx/src/renderer_vk.cpp	2025-03-07 11:52:38.320083149 +0800
-+++ ./src/renderer_vk.cpp	2025-03-07 11:50:45.026096543 +0800
-@@ -2214,6 +2214,53 @@
+diff -ruN bgfx_old/src/renderer_vk.cpp bgfx_new/src/renderer_vk.cpp
+--- bgfx_old/src/renderer_vk.cpp	2025-07-22 20:21:03.759947814 +0800
++++ src/renderer_vk.cpp	2025-07-22 20:19:15.059556700 +0800
+@@ -2218,6 +2218,53 @@
  			return BGFX_RENDERER_VULKAN_NAME;
  		}
  

@@ -235,7 +235,7 @@ $(TEXTUREC): bimg
 bgfx:
 	@make -s common
 	@rm -rf $(TEMP)/bgfx
-	@$(call fetch_git_repro,bgfx,"https://github.com/bkaradzic/bgfx")
+	@$(call fetch_git_repro,bgfx,"https://github.com/snappertt/bgfx")
 #	sed -i '/if (s_extension\[Extension::ARB_clip/,+6{ s/^\/\///}' $(PWD)/bgfx/src/renderer_gl.cpp
 # Speed up compile by skipping tools and examples
 # note - we still need libbimg_encode.a, so we still have to make tools. Patch a custom rule to build libimg_encode without the other stuff
