@@ -49,9 +49,20 @@ EXTRA_TARGETS=
 
 # (add your target platform here)
 ifeq ($(TARGET_OS),linux_arm64)
-  #GCC- aarch64-linux-gnu-gcc
-  #CLANG- clang --target=aarch64-linux-gnu --sysroot=/usr/aarch64-linux-gnu
-  $(error aarch64 linux not yet supported)
+  PLATFORM_IS_SUPPORTED=FALSE
+  
+  TARGET=aarch64-linux-gnu
+  CC=$(TARGET)-gcc
+  CXX=$(TARGET)-g++
+  CXXFLAGS=-std=c++17
+  AR=$(TARGET)-ar
+  LD=$(TARGET)-ld
+  RANLIB=$(TARGET)-ranlib
+  CMAKE=$(TARGET)-cmake #cmake is not defined, need a toolchain
+  CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET)
+  LIB=$(EXTLIB)/lib_linux_arm64/
+  
+  BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 endif
 
 #######################################################################################

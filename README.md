@@ -19,7 +19,7 @@ To cross compile with clang for osx (requires [osxcross](https://github.com/tpoe
 osx x86-64:
 
 `make TARGET_OS=osx`
-
+(x86 mac no longer supported, bgfx no longer supports this target)
 osx arm64:
 
 `make TARGET_OS=osx-arm64`
@@ -27,6 +27,12 @@ osx arm64:
 osx arm64e:
 
 `make TARGET_OS=osx-arm64e`
+
+linux arm:
+
+Requires Arch Linux package `aarch64-linux-gnu-gcc` for the compiler.
+
+`make TARGET_OS=linux-arm64`
 
 If you wish to add another platform edit the "Platform Settings" section of `common.mk` and submit a PR.
 
