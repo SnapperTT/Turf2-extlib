@@ -457,7 +457,7 @@ $(LIB)/libbacktrace.bin: $(LIBBBACKTRACE_ALL_DEPS) libbacktrace
 	@make -s common
 	@rm -rf $(TEMP)/libbacktrace
 	@cp -arf $(PWD)/libbacktrace $(TEMP)/libbacktrace
-	cd $(TEMP)/libbacktrace && ./configure $(CONFIGURE)
+	cd $(TEMP)/libbacktrace && CC=$(CC) CXX=$(CXX) ./configure $(CONFIGURE)
 	cd $(TEMP)/libbacktrace && make
 	cp -arf $(TEMP)/libbacktrace/.libs/* $(LIB)/
 	@echo "foo" > $(LIB)/libbacktrace.bin

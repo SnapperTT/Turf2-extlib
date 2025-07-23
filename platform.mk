@@ -32,7 +32,7 @@ BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='
 # T2 flags
 T2_SDL2_CONFILG_LIBS=`pkg-config --libs sdl3`
 T2_CXX_FLAGS=
-T2_TARGET_SPECIFIC_LINK_FLAGS=-ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
+T2_TARGET_SPECIFIC_LINK_FLAGS=-latomic -ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
 T2_LD_FLAGS=-fuse-ld=lld
 T2_GCC_OPTIONS=
 T2_CLANG_OPTIONS=-Wno-undefined-var-template -Wno-unknown-warning-option
@@ -88,7 +88,7 @@ ifeq ($(TARGET_OS),win)
   # T2 flags
   T2_SDL2_CONFILG_LIBS=-lmingw32 -lSDL3main -lSDL3
   T2_CXX_FLAGS= -Wa,-mbig-obj
-  T2_TARGET_SPECIFIC_LINK_FLAGS= -Wl,--disable-dynamicbase -Wl,--disable-high-entropy-va $(LIB_LUA_LINK_FLAGS) -mwindows -lopengl32 -lws2_32 -liphlpapi -lpsapi -lintl 
+  T2_TARGET_SPECIFIC_LINK_FLAGS= -Wl,--disable-dynamicbase -Wl,--disable-high-entropy-va $(LIB_LUA_LINK_FLAGS) -mwindows -latomic -lopengl32 -lws2_32 -liphlpapi -lpsapi -lintl 
   T2_LD_FLAGS= -fuse-ld=lld
   # if lld does not exist on on your build, symlink x86_64-w64-mingw32-lld as lld (or just blank out the above variable)
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/bx_compat/mingw $(EXTLIB)/include/sdl-mingw/
@@ -153,13 +153,13 @@ ifeq ($(IS_OSX),yes)
   BGFX_MAKE=OSXCROSS=$(OSX_PREFIX) GENIE="../bx/tools/bin/linux/genie --with-macos=$(OSX_DEPLOYMENT_TARGET)" make $(BGFX_TARGET) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
   
   # T2 flags
-  T2_SDL2_CONFILG_LIBS=$(EXTERNAL_LINK_DIR_OSX)SDL3
+  T2_SDL2_CONFILG_LIBS=$(EXTERNAL_LINK_DIR)SDL3
   T2_CXX_FLAGS= -mmacosx-version-min=$(OSX_DEPLOYMENT_TARGET) -pagezero_size 10000 -image_base 100000000
-  T2_TARGET_SPECIFIC_LINK_FLAGS= $(EXTERNAL_LINK_DIR_OSX)libintl.a -liconv -framework OpenGL -framework Cocoa -framework QuartzCore -Wl,"-weak_framework,Metal" -Wl,"-weak_framework,MetalKit" -framework IOKit
+  T2_TARGET_SPECIFIC_LINK_FLAGS= -liconv -framework OpenGL -framework Cocoa -framework QuartzCore -Wl,"-weak_framework,Metal" -Wl,"-weak_framework,MetalKit" -framework IOKit
   T2_LD_FLAGS=
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/sdl-osx/ $(EXTLIB)/include/intl-osx/
   
-  EXTRA_TARGETS=$(LIB)/sdl3-osx.bin $(LIB)/gettext.bin
+  EXTRA_TARGETS=$(LIB)/sdl3-osx.bin
 endif
 
 ifeq ($(PLATFORM_IS_SUPPORTED),FALSE)
