@@ -7,6 +7,10 @@ This is *not* the source code for the game, but it is a utility for compling and
 ## Building
 Assumes that you are building FROM a Linux machine (or linux subsystem on windows). *Only linux x64 has been tested and will be supported*.
 
+
+Make sure that you have the following installed: `git`, `git-lfs`, `wget`, `cmake`. If there are other programs you need please list them here.
+
+
 To build for linux with `gcc` for x86-64:
 
 `make linux`
