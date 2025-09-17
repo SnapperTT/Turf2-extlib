@@ -86,13 +86,15 @@ ifeq ($(TARGET_OS),win)
   BGFX_MAKE=make -s mingw-gcc-debug64 mingw-gcc-release64 CC='$(CC)' CXX='$(CXX)' CXXFLAGS+='$(CXXFLAGS) -DM_PI=3.14159265358979323846264338327950288  -fuse-ld=lld'
   
   # T2 flags
-  T2_SDL2_CONFILG_LIBS=-lmingw32 -lSDL3main -lSDL3
+  # -lSDL3main
+  T2_SDL2_CONFILG_LIBS=-lmingw32 -lSDL3
   T2_CXX_FLAGS= -Wa,-mbig-obj
-  T2_TARGET_SPECIFIC_LINK_FLAGS= -Wl,--disable-dynamicbase -Wl,--disable-high-entropy-va $(LIB_LUA_LINK_FLAGS) -mwindows -latomic -lopengl32 -lws2_32 -liphlpapi -lpsapi -lintl 
+  T2_TARGET_SPECIFIC_LINK_FLAGS= -Wl,--disable-dynamicbase -Wl,--disable-high-entropy-va $(LIB_LUA_LINK_FLAGS) -mwindows -latomic -lopengl32 -lws2_32 -liphlpapi -lpsapi
   T2_LD_FLAGS= -fuse-ld=lld
   # if lld does not exist on on your build, symlink x86_64-w64-mingw32-lld as lld (or just blank out the above variable)
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/bx_compat/mingw $(EXTLIB)/include/sdl-mingw/
-  T2_SYSTEM_SO=libstdc++-6.dll libintl-8.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libiconv-2.dll libssp-0.dll
+  #libintl-8.dll libiconv-2.dll  <-- gnugettext. Has been removed
+  T2_SYSTEM_SO=libstdc++-6.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libssp-0.dll
   T2_SYSTEM_SO_LOCATION=/usr/$(TARGET)/bin/
 
   EXTRA_TARGETS=$(LIB)/sdl3-mingw.bin

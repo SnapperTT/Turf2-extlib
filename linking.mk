@@ -36,8 +36,8 @@ EXTERNAL_LIBS=$(LIB_LUA_STATIC) libsnappy.a libbacktrace.a $(LIB_BGFX_STATIC)
 #libozz_animation.a libozz_base.a
 # External shared libraries
 EXTERNAL_SO_LINUX=libassimp.so libBulletCollision_turf2.so libBulletDynamics_turf2.so libLinearMath_turf2.so libdeflate.so
-EXTERNAL_SO_WIN=libassimp-5.dll libsnappy.dll libBulletCollision_turf2.dll libBulletDynamics_turf2.dll libLinearMath_turf2.dll libdeflate.dll
-EXTERNAL_SO_WIN2=SDL2.dll
+EXTERNAL_SO_WIN=libassimp-6.dll libsnappy.dll libBulletCollision_turf2.dll libBulletDynamics_turf2.dll libLinearMath_turf2.dll libdeflate.dll
+EXTERNAL_SO_WIN2=SDL3.dll
 EXTERNAL_SO_OSX=
 EXTERNAL_SO_OSX_ARM64=
 EXTERNAL_SO_OSX_ARM64E=
@@ -47,7 +47,7 @@ ifeq ($(TARGET_OS),linux)
   L_ASSIMP=-lassimp
 else ifeq ($(TARGET_OS),win)
   EXTERNAL_SO=$(EXTERNAL_SO_WIN) $(EXTERNAL_SO_WIN2)
-  L_ASSIMP=-lassimp-5
+  L_ASSIMP=-lassimp-6
 else ifeq ($(TARGET_OS),osx)
   EXTERNAL_SO=$(EXTERNAL_SO_OSX)
   L_ASSIMP=-lassimp
