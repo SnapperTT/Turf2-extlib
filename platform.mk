@@ -5,6 +5,10 @@
 CONFIGURE_BUILD=x86_64-pc-linux
 
 #######################################################################################
+# Common Settings:
+CXXSTD=-std=c++20
+
+#######################################################################################
 # Default target (linux x86)
 PLATFORM_IS_SUPPORTED=FALSE
 
@@ -15,7 +19,7 @@ endif
 TARGET=
 CC=gcc
 CXX=g++
-CXXFLAGS=-std=c++17
+CXXFLAGS=$(CXXSTD)
 AR=ar
 LD=ld
 RANLIB=ranlib
@@ -38,7 +42,7 @@ T2_GCC_OPTIONS=
 T2_CLANG_OPTIONS=-Wno-undefined-var-template -Wno-unknown-warning-option
 T2_COMPILER_OPTIONS=$(T2_GCC_OPTIONS)
 # if using clang set T2_COMPILER_OPTIONS to T2_CLANG_OPTIONS
-T2_CFLAGS=-std=c++17 -Wall -fno-omit-frame-pointer -fmax-errors=5 -fno-rtti
+T2_CFLAGS=$(CXXSTD) -Wall -fno-omit-frame-pointer -fmax-errors=5 -fno-rtti
 T2_INCLUDE_EXTRA=
 # .dll files that need to be copied from the compiler's bin
 T2_SYSTEM_SO=
@@ -54,7 +58,7 @@ ifeq ($(TARGET_OS),linux_arm64)
   TARGET=aarch64-linux-gnu
   CC=$(TARGET)-gcc
   CXX=$(TARGET)-g++
-  CXXFLAGS=-std=c++17
+  CXXFLAGS=$(CXXSTD)
   AR=$(TARGET)-ar
   LD=$(TARGET)-ld
   RANLIB=$(TARGET)-ranlib
@@ -73,7 +77,7 @@ ifeq ($(TARGET_OS),win)
   TARGET=x86_64-w64-mingw32
   CC=$(TARGET)-gcc
   CXX=$(TARGET)-g++
-  CXXFLAGS=-std=c++17
+  CXXFLAGS=$(CXXSTD)
   AR=$(TARGET)-ar
   LD=$(TARGET)-ld
   RANLIB=$(TARGET)-ranlib
@@ -139,7 +143,7 @@ ifeq ($(IS_OSX),yes)
   CC=$(TARGET)-clang
   CXX=$(TARGET)-clang++
   T2_COMPILER_OPTIONS=$(T2_CLANG_OPTIONS)
-  CXXFLAGS=-std=c++17
+  CXXFLAGS=$(CXXSTD)
   AR=$(TARGET)-ar
   LD=$(TARGET)-ld
   RANLIB=$(TARGET)-ranlib
