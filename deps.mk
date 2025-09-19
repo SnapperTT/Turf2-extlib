@@ -396,7 +396,7 @@ fmt:
 	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::string/fmt_std::string/g' {} +
 	find $(PWD)/fmt/ -type f -name "*.cc" -exec sed -i -e 's/std::string/fmt_std::string/g' {} +
 	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::basic_string<Char>/fmt_std::string/g' {} +
-	find $(PWD)/fmt/ -type f -name "*.cc"  -exec sed -i -e 's/std::basic_string<Char>/fmt_std::string/g' {} +
+	find $(PWD)/fmt/ -type f -name "*.cc" -exec sed -i -e 's/std::basic_string<Char>/fmt_std::string/g' {} +
 	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/std::basic_string<PathChar>/fmt_std::string/g' {} +
 	find $(PWD)/fmt/ -type f -name "*.cc" -exec sed -i -e 's/std::basic_string<PathChar>/fmt_std::string/g' {} +
 	find $(PWD)/fmt/ -type f -name "*.h"  -exec sed -i -e 's/system_error(ec, vformat(fmt, args)/system_error(ec, vformat(fmt, args).c_str()/g' {} +
