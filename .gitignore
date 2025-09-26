@@ -1,6 +1,8 @@
 /*
 !tests/
 !scripts/
+!sysroots/
+sysroots/*
 !sysroots/*.md
 !sysroots/*.sh
-sysroots/*
+!sysroots/*.cmake

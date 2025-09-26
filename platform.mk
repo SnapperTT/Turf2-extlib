@@ -52,24 +52,6 @@ T2_SYSTEM_SO_LOCATION=
 EXTRA_TARGETS=
 
 # (add your target platform here)
-ifeq ($(TARGET_OS),linux_arm64)
-  PLATFORM_IS_SUPPORTED=TRUE
-  
-  TARGET=aarch64-linux-gnu
-  CC=$(TARGET)-gcc
-  CXX=$(TARGET)-g++
-  SYSROOT=
-  CXXFLAGS=$(CXXSTD)
-  AR=$(TARGET)-ar
-  LD=$(TARGET)-ld
-  RANLIB=$(TARGET)-ranlib
-  CMAKE=$(TARGET)-cmake #cmake is not defined, need a toolchain
-  CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET)
-  LIB=$(EXTLIB)/lib_linux_arm64/
-  
-  BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
-endif
-
 ifeq ($(TARGET_OS),rpi_arm64)
   PLATFORM_IS_SUPPORTED=TRUE
   
