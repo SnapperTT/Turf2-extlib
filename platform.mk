@@ -27,8 +27,8 @@ CMAKE_TOOLCHAIN=
 CMAKE=cmake
 CONFIGURE=
 LIB=$(EXTLIB)/lib_lin_x64/
-
-
+SYSROOT=
+  
 LUA_MAKE=linux MYCFLAGS=-g
 LUAJIT_MAKE=
 BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
@@ -53,11 +53,12 @@ EXTRA_TARGETS=
 
 # (add your target platform here)
 ifeq ($(TARGET_OS),linux_arm64)
-  PLATFORM_IS_SUPPORTED=FALSE
+  PLATFORM_IS_SUPPORTED=TRUE
   
   TARGET=aarch64-linux-gnu
   CC=$(TARGET)-gcc
   CXX=$(TARGET)-g++
+  SYSROOT=
   CXXFLAGS=$(CXXSTD)
   AR=$(TARGET)-ar
   LD=$(TARGET)-ld
@@ -68,6 +69,26 @@ ifeq ($(TARGET_OS),linux_arm64)
   
   BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 endif
+
+ifeq ($(TARGET_OS),rpi_arm64)
+  PLATFORM_IS_SUPPORTED=TRUE
+  
+  TARGET=aarch64-linux-gnu
+  SYSROOT=$(EXTLIB)/sysroots/rpi_arm64
+  CC=$(TARGET)-gcc
+  CXX=$(TARGET)-g++
+  CXXFLAGS=$(CXXSTD)
+  AR=$(TARGET)-ar
+  LD=$(TARGET)-ld
+  RANLIB=$(TARGET)-ranlib
+  CMAKE=$(TARGET)-cmake #cmake is not defined, need a toolchain
+  CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET) --with-sysroot=$(SYSROOT)
+  LIB=$(EXTLIB)/lib_rpi_arm64/
+  
+  BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+endif
+
+#PRETTY_TARGET=\033[33m$(TARGET_OS)\033[0m
 
 #######################################################################################
 # Windows targets:
@@ -102,6 +123,8 @@ ifeq ($(TARGET_OS),win)
   T2_SYSTEM_SO_LOCATION=/usr/$(TARGET)/bin/
 
   EXTRA_TARGETS=$(LIB)/sdl3-mingw.bin
+  
+  #PRETTY_TARGET=\033[34m$(TARGET_OS)\033[0m
 endif
 
 #######################################################################################
@@ -128,14 +151,15 @@ ifeq ($(IS_OSX),yes)
     PLATFORM_IS_SUPPORTED=TRUE
   
     #todo: remove -lrt from assimp link, is it breaks
-    TARGET=aarch64-apple-darwin23
+    #aarch64 or arm64. Osxcross has simlinks between the two
+    TARGET=arm64-apple-darwin23
     BGFX_TARGET=osx-arm64
     LIB=$(EXTLIB)/lib_osx_arm64/
   else ifeq ($(TARGET_OS),osx_arm64e)
     PLATFORM_IS_SUPPORTED=TRUE
   
     #todo: remove -lrt from assimp link, is it breaks
-    TARGET=aarch64e-apple-darwin23
+    TARGET=arm64e-apple-darwin23
     BGFX_TARGET=osx-arm64e
     LIB=$(EXTLIB)/lib_osx_arm64e/
   endif
@@ -166,6 +190,7 @@ ifeq ($(IS_OSX),yes)
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/sdl-osx/ $(EXTLIB)/include/intl-osx/
   
   EXTRA_TARGETS=$(LIB)/sdl3-osx.bin
+  #PRETTY_TARGET=\033[32m$(TARGET_OS)\033[0m
 endif
 
 ifeq ($(PLATFORM_IS_SUPPORTED),FALSE)
@@ -174,3 +199,4 @@ endif
 
 # Update CFlags based on selected options
 T2_CFLAGS+= $(T2_COMPILER_OPTIONS)
+PRETTY_TARGET=$(TARGET_OS)

@@ -1,3 +1,6 @@
 /*
 !tests/
 !scripts/
+!sysroots/*.md
+!sysroots/*.sh
+sysroots/*

@@ -101,6 +101,7 @@ define fetch_git_repro
 	fi
 endef
 
+
 #######################################################################################
 # PHONEY targets
 
@@ -389,7 +390,7 @@ FastString:
 fmt:
 	@make $(MAKE_VERBOSE_STR) -s common
 	@rm -rf $(TEMP)/fmt
-	@$(call fetch_git_repro,fmt,https://github.com/fmtlib/fmt)
+	@$(call fetch_git_repro,fmt,https://github.com/snappertt/fmt)
 	rm -f $(INCLUDE_OUT)/fmt
 	ln -s $(PWD)/fmt/include/fmt $(INCLUDE_OUT)/fmt
 # replace std::string with fmt_std::string
@@ -646,6 +647,11 @@ $(LIB)/sdl3-osx.bin:
 	ln -fs $(INCLUDE_OUT)/sdl-osx $(INCLUDE_OUT)/sdl-osx/SDL3
 	@echo "foo" > $(LIB)/sdl3-osx.bin
 	@$(call hecho,"Done syncing", "SDL Osx"," repro")
+	
+$(LIB)/sdl3-linux-arm.bin:
+	@make $(MAKE_VERBOSE_STR) -s common
+	@$(call fetch_git_release,sdl-mingw,"https://github.com/libsdl-org/SDL",Source,tar.gz)
+	
 
 #######################################################################################
 # sdl-stb-font
