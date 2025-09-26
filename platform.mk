@@ -57,13 +57,13 @@ ifeq ($(TARGET_OS),rpi_arm64)
   
   TARGET=aarch64-linux-gnu
   SYSROOT=$(EXTLIB)/sysroots/rpi_arm64
-  CC=$(TARGET)-gcc
-  CXX=$(TARGET)-g++
+  CC=$(TARGET)-gcc --sysroot=$(SYSROOT)
+  CXX=$(TARGET)-g++ --sysroot=$(SYSROOT)
   CXXFLAGS=$(CXXSTD)
-  AR=$(TARGET)-ar
-  LD=$(TARGET)-ld
-  RANLIB=$(TARGET)-ranlib
-  CMAKE=$(TARGET)-cmake #cmake is not defined, need a toolchain
+  AR=$(TARGET)-ar --sysroot=$(SYSROOT)
+  LD=$(TARGET)-ld --sysroot=$(SYSROOT)
+  RANLIB=$(TARGET)-ranlib --sysroot=$(SYSROOT)
+  CMAKE=cmake -DCMAKE_TOOLCHAIN_FILE=(extlib)/sysroots/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(SYSROOT)
   CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET) --with-sysroot=$(SYSROOT)
   LIB=$(EXTLIB)/lib_rpi_arm64/
   
