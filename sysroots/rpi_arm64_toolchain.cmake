@@ -1,33 +1,64 @@
-# aarch64-toolchain.cmake
-# Usage: cmake -DCMAKE_TOOLCHAIN_FILE=(extlib)/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=(extlib)/sysroots/rpi_arm64
+# rpi_aarch64_toolchain.cmake
+# Usage: cmake -DCMAKE_TOOLCHAIN_FILE=$(EXTLIB)/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(EXTLIB)/sysroots/rpi_arm64
 
+# Target system
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-# Set the compilers
+# Cross compilers
 set(CMAKE_C_COMPILER   aarch64-linux-gnu-gcc)
 set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
 
-# Tell CMake where the sysroot is (passed in or default)
-if(NOT CMAKE_SYSROOT)
-    set(CMAKE_SYSROOT "sysroots/rpi_arm64")
+# Assemblers
+set(CMAKE_ASM_COMPILER aarch64-linux-gnu-gcc)
+
+# Archiving and linking tools
+set(CMAKE_AR      aarch64-linux-gnu-ar)
+set(CMAKE_RANLIB  aarch64-linux-gnu-ranlib)
+set(CMAKE_NM      aarch64-linux-gnu-nm)
+set(CMAKE_STRIP   aarch64-linux-gnu-strip)
+set(CMAKE_OBJCOPY aarch64-linux-gnu-objcopy)
+set(CMAKE_OBJDUMP aarch64-linux-gnu-objdump)
+
+# --------------------------
+# Sysroot configuration
+# --------------------------
+if(NOT DEFINED CMAKE_SYSROOT)
+    message(FATAL_ERROR "Please pass -DCMAKE_SYSROOT=<path-to-sysroot>")
 endif()
 
-# Compiler flags
-set(CMAKE_C_FLAGS   "--sysroot=${CMAKE_SYSROOT} ${CMAKE_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "--sysroot=${CMAKE_SYSROOT} ${CMAKE_CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "--sysroot=${CMAKE_SYSROOT} ${CMAKE_EXE_LINKER_FLAGS}")
-set(CMAKE_SHARED_LINKER_FLAGS "--sysroot=${CMAKE_SYSROOT} ${CMAKE_SHARED_LINKER_FLAGS}")
-
-# pkg-config integration (if needed)
-set(ENV{PKG_CONFIG_SYSROOT_DIR} ${CMAKE_SYSROOT})
-set(ENV{PKG_CONFIG_PATH} "${CMAKE_SYSROOT}/usr/lib/pkgconfig:${CMAKE_SYSROOT}/usr/share/pkgconfig")
-
-# Optional: where to find includes/libraries
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
 
-# Search inside sysroot first, then fall back
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+# Instruct compiler/linker where to find dynamic loader and libraries
+set(CMAKE_EXE_LINKER_FLAGS
+    "-Wl,--dynamic-linker=/lib/ld-linux-aarch64.so.1 \
+     -L${CMAKE_SYSROOT}/lib/aarch64-linux-gnu \
+     -L${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu"
+)
+
+# Search rules
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)  # Programs run on host
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)   # Libraries from sysroot
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)   # Headers from sysroot
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)   # Packages from sysroot
+
+
+# Headers from sysroot
+set(CMAKE_C_FLAGS "--sysroot=${CMAKE_SYSROOT} -I${CMAKE_SYSROOT}/usr/include -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu ${CMAKE_C_FLAGS}")
+# You must manually specify the include paths, otherwise gcc will look in the host's include. The order of these do matter, put the c++ libs first, then the c libs
+set(CMAKE_CXX_FLAGS "--sysroot=${CMAKE_SYSROOT} -I${CMAKE_SYSROOT}/usr/include/c++/12 -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu/c++/12 -I${CMAKE_SYSROOT}/usr/include -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu -L${CMAKE_SYSROOT}/usr/lib/gcc/aarch64-linux-gnu/12/ -L${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu ${CMAKE_CXX_FLAGS}")
+
+#include_directories(SYSTEM ${CMAKE_SYSROOT}/usr/include)
+
+# Optional: prevent CMake from appending host paths automatically
+    
+# pkgconfig
+find_program(PKG_CONFIG_EXECUTABLE pkg-config)
+if(NOT PKG_CONFIG_EXECUTABLE)
+    message(FATAL_ERROR "pkg-config not found on host")
+endif()
+
+# Tell pkg-config to search inside sysroot
+set(ENV{PKG_CONFIG_SYSROOT_DIR} "${CMAKE_SYSROOT}")
+set(ENV{PKG_CONFIG_PATH} "${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu/pkgconfig:${CMAKE_SYSROOT}/usr/share/pkgconfig")
+

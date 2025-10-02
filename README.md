@@ -32,16 +32,19 @@ osx arm64e:
 
 `make TARGET_OS=osx-arm64e`
 
-linux arm:
+Raspberry Pi 5:
 
-Requires Arch Linux package `aarch64-linux-gnu-gcc` for the compiler.
+Requires Arch Linux package `aarch64-linux-gnu-gcc` for the compiler. Requires you to install a sysroot (there is a script in the sysroots folder that will create a local sysroot)
 
-`make TARGET_OS=linux-arm64`
+`make TARGET_OS=rpi-arm64`
 
 If you wish to add another platform edit the "Platform Settings" section of `common.mk` and submit a PR.
 
 If you want to build multiple targets at the same time it is recommended that you `make all-sources` to download and patch the all the libraries then run `make TARGET_OS=XXX` and `make TARGET_OS=YYY` simultaneously.
 
+
+## Debugging Building
+You can add "VERBOSE=1" to the make invocation, and it will be passed to cmake and gnu sub-makes
 
 ## Tests
 `make tests` with your desired `TARGET_OS`. They will be built to the `lib_XXX_YYY` directory for your target platform and architecture.

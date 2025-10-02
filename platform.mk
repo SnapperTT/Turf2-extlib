@@ -28,10 +28,15 @@ CMAKE=cmake
 CONFIGURE=
 LIB=$(EXTLIB)/lib_lin_x64/
 SYSROOT=
-  
+TOOLS_CP=
+
 LUA_MAKE=linux MYCFLAGS=-g
 LUAJIT_MAKE=
 BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+
+ifeq ($(TARGET_OS),linux)
+  TOOLS_CP=lua52 shadercRelease texturevRelease
+endif
 
 # T2 flags
 T2_SDL2_CONFILG_LIBS=`pkg-config --libs sdl3`
@@ -48,26 +53,27 @@ T2_INCLUDE_EXTRA=
 T2_SYSTEM_SO=
 T2_SYSTEM_SO_LOCATION=
 
-
 EXTRA_TARGETS=
+
 
 # (add your target platform here)
 ifeq ($(TARGET_OS),rpi_arm64)
   PLATFORM_IS_SUPPORTED=TRUE
   
   TARGET=aarch64-linux-gnu
-  SYSROOT=$(EXTLIB)/sysroots/rpi_arm64
-  CC=$(TARGET)-gcc --sysroot=$(SYSROOT)
-  CXX=$(TARGET)-g++ --sysroot=$(SYSROOT)
-  CXXFLAGS=$(CXXSTD)
-  AR=$(TARGET)-ar --sysroot=$(SYSROOT)
-  LD=$(TARGET)-ld --sysroot=$(SYSROOT)
-  RANLIB=$(TARGET)-ranlib --sysroot=$(SYSROOT)
-  CMAKE=cmake -DCMAKE_TOOLCHAIN_FILE=(extlib)/sysroots/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(SYSROOT)
+  SYSROOT=$(EXTLIB)/sysroots/rpi_arm64/
+  CC=$(TARGET)-gcc
+  CXX=$(TARGET)-g++
+  CXXFLAGS=$(CXXSTD) --sysroot=$(SYSROOT)
+  AR=$(TARGET)-ar
+  LD=$(TARGET)-ld 
+  RANLIB=$(TARGET)-ranlib
+  CMAKE=cmake
+  CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$(EXTLIB)/sysroots/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(SYSROOT)
   CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET) --with-sysroot=$(SYSROOT)
   LIB=$(EXTLIB)/lib_rpi_arm64/
   
-  BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+  BGFX_MAKE=make -s rpi CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 endif
 
 #PRETTY_TARGET=\033[33m$(TARGET_OS)\033[0m
@@ -165,10 +171,10 @@ ifeq ($(IS_OSX),yes)
   BGFX_MAKE=OSXCROSS=$(OSX_PREFIX) GENIE="../bx/tools/bin/linux/genie --with-macos=$(OSX_DEPLOYMENT_TARGET)" make $(BGFX_TARGET) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
   
   # T2 flags
-  T2_SDL2_CONFILG_LIBS=$(EXTERNAL_LINK_DIR)SDL3
+  T2_SDL2_CONFILG_LIBS=-F$(EXTERNAL_LINK_DIR) -framework SDL3
   T2_CXX_FLAGS= -mmacosx-version-min=$(OSX_DEPLOYMENT_TARGET) -pagezero_size 10000 -image_base 100000000
   T2_TARGET_SPECIFIC_LINK_FLAGS= -liconv -framework OpenGL -framework Cocoa -framework QuartzCore -Wl,"-weak_framework,Metal" -Wl,"-weak_framework,MetalKit" -framework IOKit
-  T2_LD_FLAGS=
+  T2_LD_FLAGS=-Wl,-rpath,@executable_path/.
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/sdl-osx/ $(EXTLIB)/include/intl-osx/
   
   EXTRA_TARGETS=$(LIB)/sdl3-osx.bin

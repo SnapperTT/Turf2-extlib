@@ -38,9 +38,9 @@ EXTERNAL_LIBS=$(LIB_LUA_STATIC) libsnappy.a libbacktrace.a $(LIB_BGFX_STATIC)
 EXTERNAL_SO_LINUX=libassimp.so libBulletCollision_turf2.so libBulletDynamics_turf2.so libLinearMath_turf2.so libdeflate.so
 EXTERNAL_SO_WIN=libassimp-6.dll libsnappy.dll libBulletCollision_turf2.dll libBulletDynamics_turf2.dll libLinearMath_turf2.dll libdeflate.dll
 EXTERNAL_SO_WIN2=SDL3.dll
-EXTERNAL_SO_OSX=
-EXTERNAL_SO_OSX_ARM64=
-EXTERNAL_SO_OSX_ARM64E=
+EXTERNAL_SO_OSX=libassimp.dylib libBulletCollision_turf2.dylib libBulletDynamics_turf2.dylib libLinearMath_turf2.dylib libdeflate.dylib
+EXTERNAL_SO_OSX_ARM64=libassimp.dylib libBulletCollision_turf2.dylib libBulletDynamics_turf2.dylib libLinearMath_turf2.dylib libdeflate.dylib
+EXTERNAL_SO_OSX_ARM64E=libassimp.dylib libBulletCollision_turf2.dylib libBulletDynamics_turf2.dylib libLinearMath_turf2.dylib libdeflate.dylib
 
 ifeq ($(TARGET_OS),linux)
   EXTERNAL_SO=$(EXTERNAL_SO_LINUX)
