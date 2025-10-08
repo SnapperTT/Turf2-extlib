@@ -45,6 +45,9 @@ EXTERNAL_SO_OSX_ARM64E=libassimp.dylib libBulletCollision_turf2.dylib libBulletD
 ifeq ($(TARGET_OS),linux)
   EXTERNAL_SO=$(EXTERNAL_SO_LINUX)
   L_ASSIMP=-lassimp
+else ifeq ($(TARGET_OS), rpi_arm64)
+  EXTERNAL_SO=$(EXTERNAL_SO_LINUX)
+  L_ASSIMP=-lassimp
 else ifeq ($(TARGET_OS),win)
   EXTERNAL_SO=$(EXTERNAL_SO_WIN) $(EXTERNAL_SO_WIN2)
   L_ASSIMP=-lassimp-6
@@ -58,6 +61,7 @@ else ifeq ($(TARGET_OS),osx_arm64e)
   EXTERNAL_SO=$(EXTERNAL_SO_OSX_ARM64E)
   L_ASSIMP=-lassimp
 endif
+
 EXTERNAL_SO:=$(EXTERNAL_SO) $(T2_SYSTEM_SO) $(LIB_LUA_DYNAMIC)
 
 
@@ -65,4 +69,4 @@ EXTERNAL_SO:=$(EXTERNAL_SO) $(T2_SYSTEM_SO) $(LIB_LUA_DYNAMIC)
 EXTERNAL_LINK_DIR=$(LIB)
 
 # Link
-LDFLAGS=$(T2_LD_FLAGS) $(CFLAGS_DR) $(LDFLAGS_DR) -fmax-errors=5 -L $(EXTERNAL_LINK_DIR) $(T2_SDL2_CONFILG_LIBS) $(addprefix $(EXTERNAL_LINK_DIR),$(EXTERNAL_LIBS)) $(L_ASSIMP) -lBulletCollision_turf2 -lBulletDynamics_turf2 -lLinearMath_turf2 $(T2_TARGET_SPECIFIC_LINK_FLAGS)
+LDFLAGS=$(T2_LD_FLAGS) $(T2_SYSROOT_INCLUDES) $(CFLAGS_DR) $(LDFLAGS_DR) -fmax-errors=5 -L $(EXTERNAL_LINK_DIR) $(T2_SDL2_CONFILG_LIBS) $(addprefix $(EXTERNAL_LINK_DIR),$(EXTERNAL_LIBS)) $(L_ASSIMP) -lBulletCollision_turf2 -lBulletDynamics_turf2 -lLinearMath_turf2 $(T2_TARGET_SPECIFIC_LINK_FLAGS)

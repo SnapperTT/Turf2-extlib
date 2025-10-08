@@ -7,6 +7,7 @@ CONFIGURE_BUILD=x86_64-pc-linux
 #######################################################################################
 # Common Settings:
 CXXSTD=-std=c++20
+LISTED_TARGETS=
 
 #######################################################################################
 # Default target (linux x86)
@@ -16,6 +17,7 @@ ifeq ($(TARGET_OS),linux)
   PLATFORM_IS_SUPPORTED=TRUE
 endif
 
+LISTED_TARGETS+=linux 
 TARGET=
 CC=gcc
 CXX=g++
@@ -28,14 +30,15 @@ CMAKE=cmake
 CONFIGURE=
 LIB=$(EXTLIB)/lib_lin_x64/
 SYSROOT=
-TOOLS_CP=
+#copy windows tools to all platforms for ease of modding 
+TOOLS_CP=lua52.exe lua52.dll shadercRelease.exe texturevRelease.exe
 
 LUA_MAKE=linux MYCFLAGS=-g
 LUAJIT_MAKE=
-BGFX_MAKE=make -s linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+BGFX_MAKE=make -s  $(MAKE_VERBOSE_STR) linux-gcc CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
 
 ifeq ($(TARGET_OS),linux)
-  TOOLS_CP=lua52 shadercRelease texturevRelease
+  TOOLS_CP+= lua52 shadercRelease texturevRelease
 endif
 
 # T2 flags
@@ -43,6 +46,7 @@ T2_SDL2_CONFILG_LIBS=`pkg-config --libs sdl3`
 T2_CXX_FLAGS=
 T2_TARGET_SPECIFIC_LINK_FLAGS=-latomic -ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
 T2_LD_FLAGS=-fuse-ld=lld
+T2_SYSROOT_INCLUDES=
 T2_GCC_OPTIONS=
 T2_CLANG_OPTIONS=-Wno-undefined-var-template -Wno-unknown-warning-option
 T2_COMPILER_OPTIONS=$(T2_GCC_OPTIONS)
@@ -57,11 +61,16 @@ EXTRA_TARGETS=
 
 
 # (add your target platform here)
+LISTED_TARGETS+=rpi_arm64 
 ifeq ($(TARGET_OS),rpi_arm64)
   PLATFORM_IS_SUPPORTED=TRUE
-  
-  TARGET=aarch64-linux-gnu
   SYSROOT=$(EXTLIB)/sysroots/rpi_arm64/
+
+  # You must manually specify the include paths, otherwise gcc will look in the host's include. The order of these do matter, put the c++ libs first, then the c libs
+  SYSROOT_INCLUDES_C= -I$(SYSROOT)/usr/include -I$(SYSROOT)/usr/include/aarch64-linux-gnu -L$(SYSROOT)/usr/lib/aarch64-linux-gnu
+  SYSROOT_INCLUDES_CXX= -I$(SYSROOT)/usr/include/c++/14 -I$(SYSROOT)/usr/include/aarch64-linux-gnu/c++/14 -I$(SYSROOT)/usr/include -I$(SYSROOT)/usr/include/aarch64-linux-gnu -L$(SYSROOT)/usr/lib/gcc/aarch64-linux-gnu/14/ -L$(SYSROOT)/usr/lib/aarch64-linux-gnu
+
+  TARGET=aarch64-linux-gnu
   CC=$(TARGET)-gcc
   CXX=$(TARGET)-g++
   CXXFLAGS=$(CXXSTD) --sysroot=$(SYSROOT)
@@ -69,17 +78,26 @@ ifeq ($(TARGET_OS),rpi_arm64)
   LD=$(TARGET)-ld 
   RANLIB=$(TARGET)-ranlib
   CMAKE=cmake
-  CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$(EXTLIB)/sysroots/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(SYSROOT)
+  CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$(EXTLIB)/sysroots/rpi_arm64_toolchain.cmake -DCMAKE_SYSROOT=$(SYSROOT) -DCMAKE_SYSROOT_INCLUDES_C='$(SYSROOT_INCLUDES_C)' -DCMAKE_SYSROOT_INCLUDES_CXX='$(SYSROOT_INCLUDES_CXX)'
   CONFIGURE=--build=$(CONFIGURE_BUILD) --host=$(TARGET) --with-sysroot=$(SYSROOT)
   LIB=$(EXTLIB)/lib_rpi_arm64/
   
-  BGFX_MAKE=make -s rpi CC='$(CC)' CXX='$(CXX)' CXX_FLAGS='$(CXXFLAGS)' AR='$(AR)'
+  LUA_MAKE=posix CC="$(CC)" AR="$(AR) rcu" MYCFLAGS='-g --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_C)' RANLIB=$(RANLIB)
+  LUAJIT_MAKE=SHELL="sh -xv" HOST_CC=gcc CROSS=$(TARGET)- TARGET_CFKAGS=' --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_C)'
+  BGFX_MAKE=make -s $(MAKE_VERBOSE_STR) rpi CC='$(CC)' CXX='$(CXX)' CPPFLAGS='$(CXXFLAGS) $(SYSROOT_INCLUDES_CXX)' AR='$(AR)'
+  
+  T2_SYSROOT_INCLUDES= --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_CXX)
+  RPIUSRLIB=$(SYSROOT)/usr/lib/aarch64-linux-gnu/
+  #RPI_LIBS=$(addprefix $(RPIUSRLIB), libEGL.so.1 libGLESv2.so.2 libwayland-egl.so.1 libwayland-cursor.so.0 libwayland-client.so.0 libdecor-0.so.0 libxkbcommon.so.0 libdrm.so.2 libpipewire-0.3.so.0)
+  RPI_LIBS=$(addprefix $(RPIUSRLIB), libEGL.so.1 libGLESv2.so.2)
+  T2_TARGET_SPECIFIC_LINK_FLAGS= -latomic -lSDL3 $(RPI_LIBS) -lgbm -lX11 -ldl -Wl,-R./ -Wl,-R./build/
 endif
 
 #PRETTY_TARGET=\033[33m$(TARGET_OS)\033[0m
 
 #######################################################################################
 # Windows targets:
+LISTED_TARGETS+=win 
 ifeq ($(TARGET_OS),win)
   PLATFORM_IS_SUPPORTED=TRUE
   
@@ -96,7 +114,7 @@ ifeq ($(TARGET_OS),win)
   
   LUA_MAKE=mingw CC=$(CC)
   LUAJIT_MAKE=SHELL="sh -xv" HOST_CC="gcc -Wl,--out-implib,libluajit.dll.a" CROSS=$(TARGET)- TARGET_SYS=Windows TARGET_DLLNAME=libluajit.dll
-  BGFX_MAKE=make -s mingw-gcc-debug64 mingw-gcc-release64 CC='$(CC)' CXX='$(CXX)' CXXFLAGS+='$(CXXFLAGS) -DM_PI=3.14159265358979323846264338327950288  -fuse-ld=lld'
+  BGFX_MAKE=make -s  $(MAKE_VERBOSE_STR) mingw-gcc-debug64 mingw-gcc-release64 CC='$(CC)' CXX='$(CXX)' CXXFLAGS+='$(CXXFLAGS) -DM_PI=3.14159265358979323846264338327950288  -fuse-ld=lld'
   
   # T2 flags
   # -lSDL3main
@@ -127,6 +145,9 @@ else ifeq ($(TARGET_OS),osx_arm64)
 else ifeq ($(TARGET_OS),osx_arm64e)
   IS_OSX=yes
 endif
+LISTED_TARGETS+=osx 
+LISTED_TARGETS+=osx_arm64 
+LISTED_TARGETS+=osx_arm64e  
 
 ifeq ($(IS_OSX),yes)
   ifeq ($(TARGET_OS),osx)
@@ -168,7 +189,7 @@ ifeq ($(IS_OSX),yes)
   
   LUA_MAKE=posix CC="$(CC)" AR="$(AR) rcu" RANLIB=$(RANLIB)
   LUAJIT_MAKE=SHELL="sh -xv" HOST_CC=clang CROSS=$(TARGET)- CC=clang TARGET_SYS=Darwin
-  BGFX_MAKE=OSXCROSS=$(OSX_PREFIX) GENIE="../bx/tools/bin/linux/genie --with-macos=$(OSX_DEPLOYMENT_TARGET)" make $(BGFX_TARGET) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
+  BGFX_MAKE=OSXCROSS=$(OSX_PREFIX) GENIE="../bx/tools/bin/linux/genie --with-macos=$(OSX_DEPLOYMENT_TARGET)" make -s $(MAKE_VERBOSE_STR) $(BGFX_TARGET) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
   
   # T2 flags
   T2_SDL2_CONFILG_LIBS=-F$(EXTERNAL_LINK_DIR) -framework SDL3

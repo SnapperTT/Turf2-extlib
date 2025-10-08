@@ -7,7 +7,7 @@ Usage:
   $0 <option> [output_dir]
 
 Options:
-  1     Auto-download Raspberry Pi OS Lite 64-bit
+  1     Auto-download Raspberry Pi OS 64-bit
   2     Auto-download Debian ARM64 (stable)
   3     Auto-download Ubuntu Server ARM64 (latest LTS)
   4     Auto-download Alpine Linux ARM64 (minirootfs)
@@ -40,8 +40,8 @@ TARBALL=""
 # --- Select option ---
 case "$OPT" in
     1)
-        echo "[*] Downloading Raspberry Pi OS Lite 64-bit..."
-        URL="https://downloads.raspberrypi.com/raspios_lite_arm64_latest"
+        echo "[*] Downloading Raspberry Pi OS 64-bit..."
+        URL="https://downloads.raspberrypi.com/raspios_full_arm64_latest"
         wget -O "$TMPDIR/pi.img.xz" "$URL"
         xz -d "$TMPDIR/pi.img.xz"
         IMG="$TMPDIR/pi.img"
@@ -110,7 +110,7 @@ if [[ -n "$IMG" ]]; then
     sudo mount -o loop,offset=$OFFSET "$IMG" "$MNT_DIR"
     rsync -aHAX --delete --info=progress2 \
         --exclude='/dev/*' --exclude='/proc/*' --exclude='/sys/*' \
-        "$MNT_DIR"/ "$SYSROOT_DIR"/
+        "$MNT_DIR"/ "$SYSROOT_DIR"/  || true
     sudo umount "$MNT_DIR"
     rmdir "$MNT_DIR"
 fi

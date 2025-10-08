@@ -1,6 +1,6 @@
 include linking.mk
 
-CFLAGS=$(T2_CFLAGS) -g -ggdb $(T2_CXX_FLAGS) $(INCLUDE_SWITCHES)
+CFLAGS=$(T2_CFLAGS) -g -ggdb $(T2_CXX_FLAGS) $(T2_SYSROOT_INCLUDES) $(INCLUDE_SWITCHES)
 
 TESTS=t2_hello_world t2_windowing t2_backtrace t2_stt_stl
 LTESTS=$(addprefix $(LIB)/,$(TESTS))

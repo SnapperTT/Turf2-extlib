@@ -44,9 +44,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)   # Packages from sysroot
 
 
 # Headers from sysroot
-set(CMAKE_C_FLAGS "--sysroot=${CMAKE_SYSROOT} -I${CMAKE_SYSROOT}/usr/include -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu ${CMAKE_C_FLAGS}")
-# You must manually specify the include paths, otherwise gcc will look in the host's include. The order of these do matter, put the c++ libs first, then the c libs
-set(CMAKE_CXX_FLAGS "--sysroot=${CMAKE_SYSROOT} -I${CMAKE_SYSROOT}/usr/include/c++/12 -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu/c++/12 -I${CMAKE_SYSROOT}/usr/include -I${CMAKE_SYSROOT}/usr/include/aarch64-linux-gnu -L${CMAKE_SYSROOT}/usr/lib/gcc/aarch64-linux-gnu/12/ -L${CMAKE_SYSROOT}/usr/lib/aarch64-linux-gnu ${CMAKE_CXX_FLAGS}")
+set(CMAKE_C_FLAGS "--sysroot=${CMAKE_SYSROOT}  ${CMAKE_SYSROOT_INCLUDES_C} ${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "--sysroot=${CMAKE_SYSROOT} ${CMAKE_SYSROOT_INCLUDES_CXX} ${CMAKE_CXX_FLAGS}")
 
 #include_directories(SYSTEM ${CMAKE_SYSROOT}/usr/include)
 

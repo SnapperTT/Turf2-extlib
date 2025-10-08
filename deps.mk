@@ -43,7 +43,7 @@ EXTLIB=$(PWD)
 include platform.mk
 
 ifdef VERBOSE
-  CMAKE+= -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON VERBOSE=1 -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -v" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -v"
+  CMAKE+= -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -v" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -v"
   CFLAGS+= -v
   CXXFLAGS+= -v
 endif
@@ -174,8 +174,9 @@ lzz-bin:
 
 #######################################################################################
 # Assimp
-ASSIMP_BUILD_FLAGS=ASSIMP_NO_EXPORT=ON ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF ASSIMP_BUILD_OBJ_IMPORTER=ON ASSIMP_BUILD_GLTF_IMPORTER=ON ASSIMP_ENABLE_BOOST_WORKAROUND=ON BUILD_SHARED_LIBS=ON BUILD_TESTING=OFF ASSIMP_BUILD_ASSIMP_TOOLS=OFF ASSIMP_BUILD_TESTS=OFF ASSIMP_BUILD_SAMPLES=OFF ASSIMP_WARNINGS_AS_ERRORS=OFF
-# ASSIMP_BUILD_ZLIB=ON <-- needed for RPI, fails to build on OSX
+ASSIMP_BUILD_FLAGS=ASSIMP_NO_EXPORT=ON ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF ASSIMP_BUILD_OBJ_IMPORTER=ON ASSIMP_BUILD_GLTF_IMPORTER=ON ASSIMP_ENABLE_BOOST_WORKAROUND=ON BUILD_SHARED_LIBS=ON BUILD_TESTING=OFF ASSIMP_BUILD_ASSIMP_TOOLS=OFF ASSIMP_BUILD_TESTS=OFF ASSIMP_BUILD_SAMPLES=OFF ASSIMP_WARNINGS_AS_ERRORS=OFF ASSIMP_BUILD_ZLIB=ON
+#ASSIMP_BUILD_ZLIB=ON <-- needed for RPI, fails to build on OSX
+
 ASSIMP_BUILD_FLAGS_CMAKE=$(addprefix -D,$(ASSIMP_BUILD_FLAGS))
 
 assimp:
@@ -261,6 +262,8 @@ bgfx:
 	sed -i 's/--with-tools-turf2-turf2/--with-tools-turf2/g' $(PWD)/bgfx/makefile
 	sed -i 's/--with-combined-examples//g' $(PWD)/bgfx/makefile
 	cd $(PWD)/bgfx/ && patch -s -p0 < $(PWD)/bgfx.patch
+# enable tools for rpi (we need libbimg_encode.a)
+	sed -i 's/--gcc=rpi/--with-tools-turf2 --gcc=rpi/g' $(PWD)/bgfx/makefile
 # patch to re-enable osx64 bit
 	echo -n -e "\n.build/projects/gmake-osx-x64:\n"                                                                 >> $(PWD)/bgfx/makefile
 	echo -n -e "	\$$(GENIE) --with-tools-turf2 --with-combined-examples --with-shared-lib --gcc=osx-x64 gmake\n" >> $(PWD)/bgfx/makefile
