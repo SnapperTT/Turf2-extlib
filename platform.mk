@@ -44,7 +44,7 @@ endif
 # T2 flags
 T2_SDL2_CONFILG_LIBS=`pkg-config --libs sdl3`
 T2_CXX_FLAGS=
-T2_TARGET_SPECIFIC_LINK_FLAGS=-latomic -ldl -lGL -lX11  -Wl,-R./ -Wl,-R./build/
+T2_TARGET_SPECIFIC_LINK_FLAGS=-latomic -ldl -lGL -lX11 -static-libstdc++ -Wl,-R./ -Wl,-R./build/
 T2_LD_FLAGS=-fuse-ld=lld
 T2_SYSROOT_INCLUDES=
 T2_GCC_OPTIONS=
@@ -84,8 +84,10 @@ ifeq ($(TARGET_OS),rpi_arm64)
   
   LUA_MAKE=posix CC="$(CC)" AR="$(AR) rcu" MYCFLAGS='-g --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_C)' RANLIB=$(RANLIB)
   LUAJIT_MAKE=SHELL="sh -xv" HOST_CC=gcc CROSS=$(TARGET)- TARGET_CFKAGS=' --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_C)'
-  BGFX_MAKE=make -s $(MAKE_VERBOSE_STR) rpi CC='$(CC)' CXX='$(CXX)' CPPFLAGS='$(CXXFLAGS) $(SYSROOT_INCLUDES_CXX)' AR='$(AR)'
+  BGFX_GLES_VER=-DBGFX_CONFIG_RENDERER_OPENGLES=30
+  BGFX_MAKE=make -s $(MAKE_VERBOSE_STR) rpi CC='$(CC)' CXX='$(CXX)' CPPFLAGS='$(CXXFLAGS) $(SYSROOT_INCLUDES_CXX) $(BGFX_GLES_VER)' AR='$(AR)'
   
+  T2_CXX_FLAGS=$(BGFX_GLES_VER)
   T2_SYSROOT_INCLUDES= --sysroot=$(SYSROOT) $(SYSROOT_INCLUDES_CXX)
   RPIUSRLIB=$(SYSROOT)/usr/lib/aarch64-linux-gnu/
   #RPI_LIBS=$(addprefix $(RPIUSRLIB), libEGL.so.1 libGLESv2.so.2 libwayland-egl.so.1 libwayland-cursor.so.0 libwayland-client.so.0 libdecor-0.so.0 libxkbcommon.so.0 libdrm.so.2 libpipewire-0.3.so.0)
