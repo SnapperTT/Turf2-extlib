@@ -214,6 +214,12 @@ bx:
 # patch bx's debug functions
 	patch -R $(PWD)/bx/src/debug.cpp -i bx_debug.cpp.patch
 	patch -R $(PWD)/bx/include/bx/debug.h -i bx_debug.h.patch
+# inject config defines into bx/config.h (inside include guard)
+	@if ! grep -q BX_CONFIG_EXCEPTION_HANDLING_USE_POSIX_SIGNALS $(PWD)/bx/include/bx/config.h; then \
+		sed -i '/^#define BX_CONFIG_H_HEADER_GUARD/a \
+#define BX_CONFIG_EXCEPTION_HANDLING_USE_POSIX_SIGNALS 0\n#define BX_CONFIG_EXCEPTION_HANDLING_USE_WINDOWS_SEH 0' \
+		$(PWD)/bx/include/bx/config.h; \
+	fi
 	rm -f $(INCLUDE_OUT)/bx
 	ln -s $(PWD)/bx/include/bx $(INCLUDE_OUT)/bx
 	ln -s $(PWD)/bx/include/compat $(INCLUDE_OUT)/bx_compat
