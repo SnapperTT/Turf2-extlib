@@ -653,7 +653,7 @@ sdl-stb-font:
 
 #######################################################################################
 # snappy
-SNAPPY_FLAGS=SNAPPY_BUILD_BENCHMARKS=OFF SNAPPY_BUILD_TESTS=OFF SNAPPY_INSTALL=OFF
+SNAPPY_FLAGS=SNAPPY_BUILD_BENCHMARKS=OFF SNAPPY_BUILD_TESTS=OFF SNAPPY_INSTALL=OFF BUILD_SHARED_LIBS=OFF
 SNAPPY_FLAGS_CMAKE=$(addprefix -D,$(SNAPPY_FLAGS))
 
 snappy:
@@ -672,7 +672,7 @@ $(LIB)/snappy.bin: $(SNAPPY_ALL_DEPS) snappy
 	cd $(TEMP)/snappy ; make $(MAKE_VERBOSE_STR) -s
 	cd $(TEMP)/snappy ; cp -avf *.a *.h $(LIB)/
 	cd $(TEMP)/snappy ; [ -e *.dll ] && cp -avf *.dll $(LIB)/  || :
-	mv -f $(LIB)/libsnappy.dll.a $(LIB)/libsnappy.a  || :
+	#mv -f $(LIB)/libsnappy.dll.a $(LIB)/libsnappy.a  || :
 	@echo "foo" > $(LIB)/snappy.bin
 	@$(call hecho,"Done building", "snappy","")
 
