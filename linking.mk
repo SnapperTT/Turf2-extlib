@@ -55,7 +55,7 @@ else ifeq ($(TARGET_OS), rpi_arm64)
 else ifeq ($(TARGET_OS),win)
   EXTERNAL_SO=$(EXTERNAL_SO_WIN) $(EXTERNAL_SO_WIN2)
   L_ASSIMP=-lassimp-6
-  L_CURL=-lcurl
+  L_CURL=-lwinhttp
 else ifeq ($(TARGET_OS),osx)
   EXTERNAL_SO=$(EXTERNAL_SO_OSX)
   L_ASSIMP=-lassimp

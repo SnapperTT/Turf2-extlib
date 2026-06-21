@@ -127,7 +127,8 @@ ifeq ($(TARGET_OS),win)
   # if lld does not exist on on your build, symlink x86_64-w64-mingw32-lld as lld (or just blank out the above variable)
   T2_INCLUDE_EXTRA=$(EXTLIB)/include/bx_compat/mingw $(EXTLIB)/include/sdl-mingw/
   #libintl-8.dll libiconv-2.dll  <-- gnugettext. Has been removed
-  T2_SYSTEM_SO=libstdc++-6.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libssp-0.dll
+  #EXTERNAL_SO_WIN_LIBCURL=libbrotlidec.dll libcrypto-3-x64.dll libidn2-0.dll libnghttp2-14.dll libpsl-5.dll libssh2.dll libssl-3-x64.dll zlib1.dll libzstd.dll libcurl-4.dll 
+  T2_SYSTEM_SO=libstdc++-6.dll libgcc_s_seh-1.dll libgomp-1.dll libwinpthread-1.dll libssp-0.dll $(EXTERNAL_SO_WIN_LIBCURL)
   T2_SYSTEM_SO_LOCATION=/usr/$(TARGET)/bin/
 
   EXTRA_TARGETS=$(LIB)/sdl3-mingw.bin
