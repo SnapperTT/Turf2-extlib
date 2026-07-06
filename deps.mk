@@ -142,7 +142,7 @@ common: make_dirs
 # Note: Binary targets create a .bin file in the $(LIB) directory to mark the dependency
 # as built. Binary targets also depend on the previous target (so bgfx.bin depends on assimp.bin)
 # 
-ALL_SOURCES=$(EXTRA_TARGETS) lzz-bin assimp btMultilevelProjectedHeightmap bullet bx bimg bgfx bgfx-header-extension-library concurrentqueue FastString fmt glm libbacktrace libdeflate lua-luajit-compound-operators nanovg nanovg-command-buffer node-unidecode-cxx quant rapidjson readerwriterqueue sdl-stb-font snappy sol2 stb stt-stl stt-obj sttr tsl vecgui vg-renderer xxHash
+ALL_SOURCES=$(EXTRA_TARGETS) lzz-bin assimp btMultilevelProjectedHeightmap bullet bx bimg bgfx bgfx-header-extension-library concurrentqueue FastString fmt glm libbacktrace libdeflate lua-luajit-compound-operators nanovg nanovg-command-buffer node-unidecode-cxx quant rapidjson readerwriterqueue sdl-stb-font snappy sol2 stb stt-stl stt-sav stt-obj sttr tsl vecgui vg-renderer xxHash
 ALL_BINARIES=$(SYSTEM_SO_DST) $(LIB)/assimp.bin $(LIB)/bgfx.bin $(LIB)/bullet.bin $(LIB)/libbacktrace.bin $(LIB)/libdeflate.bin $(LIB)/lua-luajit-compound-operators.bin $(LIB)/snappy.bin
 
 # Dependancy list to make things build *in order*
@@ -707,6 +707,17 @@ stb:
 	rm -f $(INCLUDE_OUT)/stb
 	ln -s $(PWD)/stb $(INCLUDE_OUT)/stb
 	@$(call hecho,"Done syncing", "stb"," repro") 	
+
+
+#######################################################################################
+# stt-sav
+stt-sav:
+	@make $(MAKE_VERBOSE_STR) -s common
+	@rm -rf $(TEMP)/stt-sav
+	@$(call fetch_git_repro,stt-sav,https://github.com/SnapperTT/stt-sav)
+	rm -f $(INCLUDE_OUT)/stt-sav
+	ln -s $(PWD)/stt-sav $(INCLUDE_OUT)/stt-sav
+	@$(call hecho,"Done syncing", "stt-sav"," repro") 
 
 
 #######################################################################################
